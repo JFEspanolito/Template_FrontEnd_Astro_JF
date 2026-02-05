@@ -1,24 +1,62 @@
-# build output
-dist/
-
-# generated types
-.astro/
-
-# dependencies
+# -----------------------------------------------------------------------------
+# Dependencies
+# -----------------------------------------------------------------------------
 node_modules/
+.pnp
+.pnp.js
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
 
-# logs
+# -----------------------------------------------------------------------------
+# Framework & Build Output (Next.js / Astro / General)
+# -----------------------------------------------------------------------------
+/.next/
+/out/
+/build/
+/dist/
+.astro/
+.vercel/
+
+# -----------------------------------------------------------------------------
+# Environment Variables
+# -----------------------------------------------------------------------------
+# Ignore all .env files...
+.env
+.env*
+# ...but allow the example file for documentation
+!.env.example
+
+# -----------------------------------------------------------------------------
+# Logs & Debug
+# -----------------------------------------------------------------------------
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
+.pnpm-debug.log*
 
-# environment variables
-.env
-.env.production
+# -----------------------------------------------------------------------------
+# TypeScript & IDE Types
+# -----------------------------------------------------------------------------
+*.tsbuildinfo
+next-env.d.ts
 
-# macOS-specific files
+# -----------------------------------------------------------------------------
+# IDE & System Files
+# -----------------------------------------------------------------------------
 .DS_Store
-
-# jetbrains setting folder
+*.pem
 .idea/
+.vscode/
+# Windows metadata
+*:Zone.Identifier
+
+# -----------------------------------------------------------------------------
+# Generated Public Assets (next-sitemap, etc.)
+# -----------------------------------------------------------------------------
+public/robots.txt
+public/sitemap.xml
+public/sitemap-0.xml
