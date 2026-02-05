@@ -1,62 +1,103 @@
-# AI Engineering & Architecture Guide
+# AI Engineering & Architecture Guide (Astro 5 Edition)
 
 ## 1. Design Philosophy
-This project is a **scalable boilerplate** meant to be cloned for new SaaS or Landing Page projects.
-- **Goal:** Minimize setup time for Auth, DB, and Payments without accumulating tech debt.
-- **Rule:** Code should be modular. If a feature (e.g., Stripe) is removed, the rest of the app must not break.
-- **Rendering:** Prioritize **Server Components (RSC)** for initial load and SEO. Use Client Components only when interactivity is required.
 
-## 2. Configuration Strategy (Dual-Config Pattern)
-We separate configuration into two distinct domains. **Do not mix them.**
+High-performance boilerplate based on Astro 5 + React 19, optimized for speed, SEO, and developer experience.
 
-### A. Client/UI Config (`data/configProject.ts`)
-- **Purpose:** Public-facing values, branding, SEO, text content.
-- **Security:** SAFE for client-side bundles.
-- **Location:** `data/configProject.ts`
-- **Usage:** Import primarily in Components, Layouts, and Metadata generation.
-- **Example:** `appName`, `colors`, `socials`, `seoTags`, `marketing.tagline`.
+**Goal:** Minimize setup time for Analytics, UI, and Backend while preserving a *Zero JS by default* footprint.
 
-### B. Server/API Config (`configApi.js`)
-- **Purpose:** Secrets, API keys, Environment logic, backend-only settings.
-- **Security:** **CRITICAL**. Never expose to client.
-- **Location:** **Root directory** (`./configApi.js`).
-- **Usage:** Import ONLY in API Routes, Server Actions, or `libs/`.
-- **Validation:** This file enforces the existence of required `.env` variables at runtime.
+**Island Architecture:** Selective hydration. Content is static by default; JavaScript is shipped only for interactive *islands*.
 
-## 3. Data Layer Architecture
+**Rule:** Architecture follows Domain-Driven Design (DDD) to decouple business logic from framework-specific code.
 
-### Database Connection (`libs/db.ts`)
-- **Pattern:** We use a **Singleton Pattern** for Mongoose to prevent connection exhaustion in serverless environments (Vercel/Next.js).
-- **Protocol:** ALWAYS import `connectMongo` from `@/libs/db`.
-- **Anti-Pattern:** **NEVER** instantiate `mongoose.connect()` manually inside a component or page.
+---
 
-### Data Models (`models/*.js`)
-- **Format:** Models are defined in **JavaScript** (`.js`), not TypeScript, to avoid complex hydration typing issues with Mongoose.
-- **Consumption:** They are imported and used by TypeScript files (API/Libs) which handle the typing via interfaces if needed.
-- **Plugin:** We use a `toJSON` plugin (`models/plugins/toJSON.js`) to sanitize output (removing `_id`, `__v`) before sending to the frontend.
+## 2. Configuration Strategy
 
-## 4. Authentication Flow (NextAuth v4)
-- **Adapter:** `@auth/mongodb-adapter`.
-- **Session Strategy:** Database-based sessions are preferred for robustness.
-- **Routes:**
-  - `(private)/`: Contains protected pages. Middleware or per-page checks guard these.
-  - `components/auth/`: Contains UI for Login/Register forms.
+Strict separation between client-side branding and server-side secrets via a **Dual-Config Pattern**.
 
-## 5. UI System (Tailwind v4 + DaisyUI v5)
-- **Engine:** Tailwind CSS v4 (using `@tailwindcss/postcss`).
-- **Theming:** DaisyUI v5. Themes are configured in CSS/HTML attributes, not just JS config.
-- **Structure:**
-  - `components/ui/`: Atomic, reusable components (Buttons, Badges, Cards).
-  - `components/sections/`: Large, distinct page blocks (Hero, FAQ, Pricing).
-  - `layout/`: Global layout wrappers (Header, Footer, Sidebar).
-- **Helper:** Use `cn()` from `@/libs/utils` for conditional class merging.
+### A. Client / UI Config (`src/data/configProject.ts`)
 
-## 6. API Route Conventions (`app/api/`)
-- **Design:** Next.js App Router handlers (`GET`, `POST`, `PUT`, `DELETE`).
-- **Response Format Standard:**
-  ```json
-  {
-    "success": true,
-    "data": { ... },
-    "error": "Optional error message"
-  }
+- **Purpose:** Public values, SEO metadata, branding, UI text.
+- **Security:** Safe for client bundles.
+- **Usage:** Imported in Layouts, SEO components, UI blocks.
+- **Environment:** Uses `import.meta.env.PUBLIC_*` for browser-exposed variables.
+
+### B. Server / API Config (`src/env.d.ts`)
+
+- **Purpose:** Strict typing for all environment variables (Secrets, API Keys).
+- **Security:** Variables without `PUBLIC_` are server-only.
+- **Validation:** Every env var must be registered in `src/env.d.ts` for autocomplete and type safety.
+
+---
+
+## 3. Routing & View Architecture
+
+Route definition is separated from view logic (Next.js–friendly migration pattern).
+
+### Routes (`src/pages/*.astro`)
+
+- Define URL structure.
+- Handle SSR / SSG.
+- Manage SEO.
+
+### Views (`src/components/pages/*.tsx`)
+
+- Page UI + React logic.
+- Imported by Astro pages as interactive islands.
+
+### Hydration
+
+- `client:load` → immediate interactivity.
+- `client:visible` → performance-optimized hydration.
+
+---
+
+## 4. Data Layer Architecture (DDD)
+
+Core logic lives in a framework-agnostic `core/` directory (when applicable), following DDD.
+
+### Database (`src/libs/db.ts`)
+
+- Singleton pattern for Mongoose/MongoDB.
+- Prevents connection exhaustion in serverless environments.
+
+### Models (`models/*.js`)
+
+- Written in JavaScript to avoid hydration typing complexity.
+- TypeScript interfaces provide safety at the application layer.
+
+### Utility
+
+- Use `cn()` from `@/libs/utils.ts` for clean conditional Tailwind class merging.
+
+---
+
+## 5. UI System (Tailwind v4)
+
+- **Engine:** Tailwind CSS v4 Vite Plugin.
+- **Theming:** No `tailwind.config.js`.
+
+All tokens, colors (e.g. Cyberpunk themes), and variables live in:
+
+`src/styles/global.css`
+
+```
+@theme {
+  /* design tokens here */
+}
+```
+-   **Interactive UI:** React 19 + Headless UI for accessible, stateful components (Modals, Banners).
+
+----------
+
+## 6. Analytics & Privacy
+
+### Consent Management
+- Handled by `AnalyticsBanner.tsx` island.
+
+### Performance
+- Partytown offloads GA + Clarity to a Web Worker, keeping the main thread free.
+
+### Insights
+- Integrated with `@vercel/speed-insights` for real-time performance monitoring.
