@@ -1,11 +1,20 @@
 ---
-import Welcome from '../components/Welcome.astro';
-import Layout from '../layouts/Layout.astro';
-
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+import Layout from "../layouts/Layout.astro";
+import ButtonBasic from "@/components/buttons/ButtonBasic.astro";
 ---
 
-<Layout>
-	<Welcome />
+<Layout title="Home Page">
+  Hola!
+
+  <ButtonBasic id="mi-boton-alerta" title="Entrar" typeButton={1} size={1} />
 </Layout>
+
+<script>
+  // Esto va en tu pagina.astro
+  const btn = document.getElementById("mi-boton-alerta");
+  if (btn) {
+    btn.addEventListener("click", () => {
+      alert("¡Funciona sin React y carga volando! 🚀");
+    });
+  }
+</script>

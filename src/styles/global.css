@@ -1,6 +1,26 @@
+/* src/styles/global.css */
 @import "tailwindcss";
 
 @theme {
   --font-sans: 'Inter', system-ui, sans-serif;
+  
   --color-primary: #661AE6;
+  --color-success: #22c55e;
+  --color-failed: #ef4444;
+  
+  --color-background: #ffffff;
+  --color-foreground: #0f172a;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-background: #0f172a;
+    --color-foreground: #ffffff;
+  }
+}
+
+body {
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+  font-family: var(--font-sans);
 }

@@ -1,0 +1,48 @@
+---
+import type { HTMLAttributes } from "astro/types";
+import { cn } from "@/libs/utils";
+
+interface Props extends HTMLAttributes<"button"> {
+  title?: string;
+  typeButton?: 1 | 2 | 3; // 1=Primary, 2=Secondary, 3=Ghost
+  enable?: boolean;
+  shape?: 1 | 2; // 1=Circular, 2=Rectangular
+  size?: 1 | 2 | 3;
+  id?: string;
+}
+
+const { title, typeButton = 1, enable = true, shape = 2, size = 1, class: className, id, ...props } = Astro.props;
+
+const baseStyles =
+  "transition-all duration-300 flex items-center justify-center cursor-pointer disabled:opacity-50 disabled:pointer-events-none font-medium";
+
+const typeStyles = {
+  1: "bg-primary text-white hover:opacity-90 border border-transparent shadow-sm",
+  2: "bg-background text-primary border border-primary hover:bg-gray-50",
+  3: "bg-transparent text-gray-600 hover:text-primary hover:bg-gray-100/50",
+};
+
+const shapeStyles = {
+  1: "rounded-full aspect-square hover:scale-110",
+  2: "rounded-lg",
+};
+
+const sizeStyles = {
+  1: shape === 1 ? "h-10 w-10" : "px-6 py-2 text-sm",
+  2: shape === 1 ? "h-14 w-14" : "px-8 py-3 text-lg",
+  3: shape === 1 ? "h-5 w-5" : "px-3 py-1 text-sm",
+};
+---
+
+<button
+  id={id}
+  disabled={!enable}
+  class={cn(baseStyles, typeStyles[typeButton], shapeStyles[shape], sizeStyles[size], className)}
+  {...props}
+>
+  {/* Slot para el Icono */}
+  <slot name="icon" />
+
+  {/* Texto con margen inteligente si hay icono y es rectangular */}
+  {title ? <span class:list={[{ "ml-2": Astro.slots.has("icon") && shape === 2 }]}>{title}</span> : <slot />}
+</button>
