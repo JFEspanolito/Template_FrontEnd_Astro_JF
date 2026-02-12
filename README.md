@@ -50,6 +50,17 @@ Todos desde la raíz usando pnpm:
 | `pnpm preview`    | Previsualiza el build                   |
 | `pnpm astro sync` | Regenera tipos de Astro                 |
 
+Si deseas utilizar 
+```
+pnpm add -D vitest
+```
+Recuerda que debes configurar package.json
+```
+"scripts": {
+  "test": "vitest"
+}
+```
+
 ### 🧠 Arquitectura CORE (DDD)
 
 Separación estricta de responsabilidades:
