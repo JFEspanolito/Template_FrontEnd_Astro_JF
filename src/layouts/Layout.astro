@@ -6,8 +6,8 @@ import "@/styles/global.css";
 import config from "@/data/configProject";
 
 // Importando Componentes
-import Header from "@/components/layout/Header.astro";
-import Footer from "@/components/layout/Footer.astro";
+import Header from "@/layouts/Header.astro";
+import Footer from "@/layouts/Footer.astro";
 import AnalyticsBanner from "@/components/analytics/AnalyticsBanner";
 
 // Propiedades
@@ -39,10 +39,15 @@ const finalTitle = title ? `${title} | ${config.appName}` : config.appName;
     <meta property="og:site_name" content={config.appName} />
     <meta property="og:title" content={finalTitle} />
     <meta property="og:description" content={config.appDescription} />
-    <meta property="og:image" content={config.siteUrl + config.images.ogDefault} />
+    <meta
+      property="og:image"
+      content={config.siteUrl + config.images.ogDefault}
+    />
   </head>
 
-  <body class="antialiased bg-[var(--background)] text-[var(--foreground)] flex flex-col min-h-screen">
+  <body
+    class="antialiased bg-[var(--background)] text-[var(--foreground)] flex flex-col min-h-screen"
+  >
     {/* Header en la parte superior */}
     <Header />
 
