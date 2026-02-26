@@ -1,47 +1,59 @@
-// Convert all .png, .jpg, .jpeg, and .svg files to .webp in the same locations
+// Convert all .png, .jpg, .jpeg to .webp in the same locations
 // Usage: node scripts/convert-images-to-webp.js
-// Requires: npm i sharp glob
+// Requires: pnpm install sharp glob
 
-const fs = require('fs');
-const path = require('path');
-const glob = require('glob');
-const sharp = require('sharp');
+import fs from 'fs';
+import path from 'path';
+import { glob } from 'glob';
+import sharp from 'sharp';
 
-// 1. PATTERN actualizado para incluir jpg 
-const PATTERN = '**/*.{png,jpg,jpeg}';
+const PATTERN = "**/*.{png,jpg,jpeg}";
+const IGNORE = [
+    "**/node_modules/**", 
+    "dist/**", 
+    "build/**",
+    ".astro/**",
+    ".next/**",
+    ".vscode/**",
+    "**/.agent/**"
+];
 
 (async () => {
   try {
-    const files = glob.sync(PATTERN, { nodir: true, ignore: ['**/node_modules/**', 'dist/**', '.next/**'] });
+    console.log(`Searching for images with pattern: ${PATTERN}...`);
+    const files = await glob(PATTERN, { nodir: true, ignore: IGNORE });
     
+    if (files.length === 0) {
+        console.log("No images found to convert.");
+        return;
+    }
+
+    console.log(`Found ${files.length} images. Starting conversion...`);
 
     for (const file of files) {
-      // 2. Regex actualizada para reemplazar cualquier extensión de origen
-      const out = file.replace(/\.(png|jpg|jpeg)$/i, '.webp');
+      const extension = path.extname(file).toLowerCase();
+      const out = file.replace(new RegExp(`\\${extension}$`, 'i'), '.webp');
+
+      // Skip if output file already exists (optional, but good for performance)
+      // if (fs.existsSync(out)) {
+      //   console.log(`Skipping ${file} - output already exists.`);
+      //   continue;
+      // }
       
       try {
-        const extension = path.extname(file).toLowerCase();
-
-        let conversion;
-
-        // 3. Lógica de conversión condicional
-        if (extension === '.svg') {
-          // Usar 'lossless' para SVGs para mantener la nitidez
-          conversion = sharp(file).webp({ lossless: true });
-        } else {
-          // Usar 'quality' para fotos/imágenes rasterizadas (png, jpg)
-          conversion = sharp(file).webp({ quality: 80 });
-        }
-
-        await conversion.toFile(out);
-        } catch (err) {
-        console.error(`Failed convert ${file}:`, err?.message || String(err));
+        await sharp(file)
+            .webp({ quality: 80 })
+            .toFile(out);
+            
+        console.log(`✓ Converted: ${file} -> ${out}`);
+      } catch (err) {
+        console.error(`✗ Failed to convert ${file}:`, err?.message || String(err));
       }
     }
 
-    
-    } catch (err) {
-    console.error('Error during conversion:', err?.message || String(err));
+    console.log("Conversion complete.");
+  } catch (err) {
+    console.error('Error during conversion process:', err?.message || String(err));
     process.exit(1);
   }
 })();

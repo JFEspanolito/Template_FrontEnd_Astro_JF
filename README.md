@@ -160,6 +160,23 @@ node "../../scripts/normalize-names.js" -r
 node "../../scripts/normalize-names.js" --dry
 ```
 
+### 💻 Comandos para npm
+
+Ejecuta este comando para limpiar y recuperar espacio en tu disco.
+
+```
+npx npkill
+```
+
+React Doctor es una herramienta que escanéa tu código para buscar antipatrones. Busca cosas como:
+- useEffects innecesarios.
+- Arregla bugs de accesibilidad.
+- Investiga Prop Drilling, recomienda contexto o composición.
+
+```
+npx -y react-doctor@late
+```
+
 ### 💻 VSCode recomendado
 
 Configuración sugerida para ocultar ruido visual y mejorar la legibilidad.

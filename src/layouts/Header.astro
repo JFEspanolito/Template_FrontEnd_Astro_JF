@@ -1,10 +1,9 @@
 ---
-import { Image } from "astro:assets";
 import logoImg from "@/assets/astro.svg";
 import config from "@/data/configProject";
-// Para el favicon, si está en public, se usa ruta directa.
-// Si quisieras optimizarlo con Astro Image, deberías importarlo,
-// pero los .ico suelen dar problemas en optimización, mejor ruta string.
+import ThemeToggle from "@/components/buttons/ThemeToggle";
+import { LanguageSwitcher } from "@/components/buttons/LanguageSwitcher";
+
 const faviconUrl = logoImg;
 
 const links = [
@@ -38,6 +37,9 @@ const links = [
         </svg>
       </button>
     </div>
+
+    <ThemeToggle client:only="react" />
+    <LanguageSwitcher client:only="react" />
 
     {/* LINKS (Desktop Only) */}
     <div class="hidden lg:flex lg:flex-1 lg:justify-center lg:gap-12 lg:items-center">
@@ -73,6 +75,8 @@ const links = [
       {/* Links Móviles */}
       <div class="flow-root mt-6">
         <div class="py-4">
+          <ThemeToggle client:only="react" />
+          <LanguageSwitcher client:only="react" />
           <div class="flex flex-col gap-y-4 items-start">
             {
               links.map((link) => (

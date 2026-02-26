@@ -3,10 +3,10 @@
 // Requires: FFmpeg installed and in PATH
 // Optional: npm i glob
 
-const { execSync } = require("child_process");
-const glob = require("glob");
-const path = require("path");
-const fs = require("fs");
+import { execSync } from "child_process";
+import { glob } from "glob";
+import path from "path";
+import fs from "fs";
 
 const PATTERN = "**/*.{mp3,wav,m4a,aac,ogg}";
 
@@ -14,10 +14,21 @@ const PATTERN = "**/*.{mp3,wav,m4a,aac,ogg}";
   try {
     const files = glob.sync(PATTERN, {
       nodir: true,
-      ignore: ["**/node_modules/**", "dist/**", ".next/**"],
+      ignore: [
+        "**/node_modules/**",
+        "dist/**",
+        ".next/**",
+        ".astro",
+        ".vscode",
+        "**/.agent",
+        "**/.claude",
+        "**/.codex",
+        "**/.cursor",
+        "**/.gemini",
+        "**/.opencode",
+        "dist",
+      ],
     });
-
-    
 
     for (const file of files) {
       const out = file.replace(/\.(mp3|wav|m4a|aac|ogg)$/i, ".webm");
@@ -35,8 +46,6 @@ const PATTERN = "**/*.{mp3,wav,m4a,aac,ogg}";
         console.error(`Failed convert ${file}:`, err?.message || String(err));
       }
     }
-
-    
   } catch (err) {
     console.error("Error during conversion:", err?.message || String(err));
     process.exit(1);
