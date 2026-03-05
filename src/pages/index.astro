@@ -1,12 +1,26 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import ButtonBasic from "@/components/buttons/ButtonBasic.astro";
+import { CtaButton } from "@/components/ui/CtaButton";
 ---
 
 <Layout title="Home Page">
   Hola!
 
   <ButtonBasic id="mi-boton-alerta" title="Entrar" typeButton={1} size={1} />
+
+  <!-- <CtaButton
+    client:load
+    audioSrc={heyListenAudio}
+    propType="success"
+    propFill="var(--color-card-bg )"
+    buttonClic={{
+      title: lang === "en" ? "Email" : "Correo",
+      url: aboutData.contact.find((c) => c.name === "Email")?.url,
+    }}
+    propDesc={lang === "en" ? "Send me a mail or use other social media" : "Envíame un correo o usa otra red social"}
+    propTitle={profileInfo.callToAction}
+  /> -->
 </Layout>
 
 <script>
