@@ -1,22 +1,47 @@
 /* src/styles/global.css */
 @import "tailwindcss";
 
+/* Enable class-based dark mode for Tailwind dark: variants */
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme {
   --font-sans: 'Inter', system-ui, sans-serif;
-  
+
   --color-primary: #661AE6;
   --color-success: #22c55e;
   --color-failed: #ef4444;
-  
+
   --color-background: #ffffff;
   --color-foreground: #0f172a;
 }
 
+/* Dark theme via .dark class (applied by ThemeToggle + inline script) */
+.dark {
+  --color-background: #0f172a;
+  --color-foreground: #ffffff;
+}
+
+/* No-JS fallback: respect system preference when JS hasn't loaded */
 @media (prefers-color-scheme: dark) {
-  :root {
+  html:not([data-theme]) {
     --color-background: #0f172a;
     --color-foreground: #ffffff;
   }
+}
+
+/* UI control variables (ThemeToggle, LanguageSwitcher) */
+:root {
+  --btn-primary: #661AE6;
+  --btn-secondary: #f1f5f9;
+  --btn-text-primary: #ffffff;
+  --btn-text-secondary: #64748b;
+  --shadow-soft: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.dark {
+  --btn-secondary: #1e293b;
+  --btn-text-secondary: #94a3b8;
+  --shadow-soft: 0 1px 3px rgba(0, 0, 0, 0.3);
 }
 
 body {

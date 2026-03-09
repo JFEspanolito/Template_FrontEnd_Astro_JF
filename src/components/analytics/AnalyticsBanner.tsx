@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
-import inject from "@vercel/speed-insights";
-import Modal from "@/components/ui/Modal"; // Tu componente Headless UI
+import { injectSpeedInsights } from "@vercel/speed-insights";
+import Modal from "@/components/ui/Modal";
 
 declare global {
   interface Window {
@@ -23,7 +23,7 @@ function writeConsentCookie(val: string) {
   if (typeof document === "undefined") return;
   const d = new Date();
   d.setFullYear(d.getFullYear() + 1);
-  document.cookie = `eb_consent=${encodeURIComponent(val)}; expires=${d.toUTCString()}; path=/; samesite=lax`;
+  document.cookie = `eb_consent=${encodeURIComponent(val)}; expires=${d.toUTCString()}; path=/; samesite=lax${location.protocol === 'https:' ? '; secure' : ''}`;
 }
 
 export default function AnalyticsBanner() {
@@ -59,10 +59,8 @@ export default function AnalyticsBanner() {
     const savedConsent = getConsent();
     setConsentState(savedConsent);
 
-    // Speed Insights
-    if (inject && typeof (inject as any).injectSpeedInsights === "function") {
-      (inject as any).injectSpeedInsights();
-    }
+    // Speed Insights (anonymous performance data, no consent needed)
+    injectSpeedInsights();
 
     if (savedConsent === "accepted") {
       loadScripts();
@@ -91,18 +89,18 @@ export default function AnalyticsBanner() {
       preventClose={true} // Usamos tu prop para obligar a elegir
     >
       <div className="space-y-4">
-        <p className="text-sm text-gray-300">
+        <p className="text-sm opacity-70">
           Utilizamos cookies para mejorar tu experiencia y analizar el tráfico mediante Google Analytics y Microsoft Clarity.
         </p>
         <div className="flex justify-end gap-3">
-          <button 
-            onClick={decline} 
-            className="px-4 py-2 text-sm font-medium text-white bg-white/10 rounded-lg hover:bg-white/20 transition-colors"
+          <button
+            onClick={decline}
+            className="px-4 py-2 text-sm font-medium rounded-lg bg-foreground/10 hover:bg-foreground/20 transition-colors"
           >
             Solo esenciales
           </button>
-          <button 
-            onClick={accept} 
+          <button
+            onClick={accept}
             className="px-4 py-2 text-sm font-bold text-white rounded-lg bg-primary hover:opacity-90 transition-opacity"
           >
             Aceptar todas

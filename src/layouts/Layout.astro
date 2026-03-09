@@ -10,46 +10,81 @@ import Header from "@/layouts/Header.astro";
 import Footer from "@/layouts/Footer.astro";
 import AnalyticsBanner from "@/components/analytics/AnalyticsBanner";
 import { Toaster } from "sileo";
+import { ClientRouter } from "astro:transitions";
 
 // Propiedades
 interface Props {
   title?: string;
+  description?: string;
 }
 
-const { title } = Astro.props;
-// Lógica para que el título sea "Página | AppName" o solo "AppName"
+const { title, description } = Astro.props;
 const finalTitle = title ? `${title} | ${config.appName}` : config.appName;
+const finalDescription = description || config.appDescription;
+const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang={config.language.split("-")[0]}>
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 
-    {/* Aquí usamos tu variable calculada */}
+    {/* Prevent FOUC: 1) set .dark class, 2) define CSS vars — both BEFORE external stylesheet loads */}
+    <script is:inline>
+      (function() {
+        var t = localStorage.getItem('theme') || 'system';
+        var d = t === 'dark' || (t === 'system' && matchMedia('(prefers-color-scheme: dark)').matches);
+        document.documentElement.classList.toggle('dark', d);
+        document.documentElement.setAttribute('data-theme', d ? 'dark' : 'light');
+      })();
+    </script>
+    <style is:inline>
+      :root {
+        --color-background: #ffffff;
+        --color-foreground: #0f172a;
+        --btn-primary: #661AE6;
+        --btn-secondary: #f1f5f9;
+        --btn-text-primary: #ffffff;
+        --btn-text-secondary: #64748b;
+        --shadow-soft: 0 1px 3px rgba(0,0,0,0.1);
+      }
+      :root.dark {
+        --color-background: #0f172a;
+        --color-foreground: #ffffff;
+        --btn-secondary: #1e293b;
+        --btn-text-secondary: #94a3b8;
+        --shadow-soft: 0 1px 3px rgba(0,0,0,0.3);
+      }
+      html { background-color: var(--color-background); color: var(--color-foreground); }
+    </style>
+
     <title>{finalTitle}</title>
 
-    {/* Meta tags globales desde tu config */}
-    <meta name="description" content={config.appDescription} />
+    <meta name="description" content={finalDescription} />
     <meta name="theme-color" content={config.themeColor} />
     <meta name="generator" content={Astro.generator} />
+    <link rel="canonical" href={canonicalURL} />
 
-    {/* Open Graph (Redes Sociales) */}
+    {/* Open Graph */}
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonicalURL} />
     <meta property="og:site_name" content={config.appName} />
     <meta property="og:title" content={finalTitle} />
-    <meta property="og:description" content={config.appDescription} />
+    <meta property="og:description" content={finalDescription} />
     <meta property="og:image" content={config.siteUrl + config.images.ogDefault} />
+
+    {/* Twitter Card */}
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={finalTitle} />
+    <meta name="twitter:description" content={finalDescription} />
+    <meta name="twitter:image" content={config.siteUrl + config.images.ogDefault} />
   </head>
 
-  <body class="antialiased bg-[var(--background)] text-[var(--foreground)] flex flex-col min-h-screen">
+  <body class="antialiased bg-background text-foreground font-sans flex flex-col min-h-screen">
     {/* Componente de notificaciones globales */}
-    <Toaster position="top-right" />
-    <!--
-    Available positions: top-left, top-center, top-right, bottom-left, bottom-center, bottom-right.
-    https://sileo.aaryan.design/docs
-    -->
+    <Toaster position="top-right" client:load />
 
     {/* Header en la parte superior */}
     <Header />
@@ -60,6 +95,6 @@ const finalTitle = title ? `${title} | ${config.appName}` : config.appName;
 
     {/* Footer al final */}
     <Footer />
-    <AnalyticsBanner client:load />
+    <AnalyticsBanner client:idle />
   </body>
 </html>

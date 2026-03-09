@@ -6,7 +6,7 @@ const configProject = {
   appName: "<Astro Astro Place holder>",
   appDescription: "<Astro Place holder>",
   domainName: "website.placeholder.com",
-  siteUrl: "http://localhost:3000",
+  siteUrl: import.meta.env.PUBLIC_SITE_URL || "http://localhost:4321",
 
   // ======================================================
   // 🌐 METADATOS / SEO
