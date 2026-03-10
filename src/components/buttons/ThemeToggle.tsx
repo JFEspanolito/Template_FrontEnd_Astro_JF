@@ -1,4 +1,3 @@
-"use client";
 import { useEffect, useState } from "react";
 import { Sun, Moon, Monitor } from "lucide-react";
 
@@ -26,11 +25,9 @@ export default function ThemeToggle() {
   }, [theme]);
 
   useEffect(() => {
-    if (resolvedTheme === 'dark') {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
+    const isDark = resolvedTheme === 'dark';
+    document.documentElement.classList.toggle('dark', isDark);
+    document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
   }, [resolvedTheme]);
 
 

@@ -29,18 +29,13 @@ export const CtaButton = ({
 
   const handleClick = async () => {
     // Audio
-    if (audioSrc != null) {
-      if (audioRef.current) {
-        try {
-          console.log("Playing audio:", audioRef.current.src);
-          audioRef.current.pause();
-          audioRef.current.currentTime = 0;
-          await audioRef.current.play();
-        } catch (e) {
-          console.error("Audio error", e);
-        }
-      } else {
-        console.error("Audio ref is missing");
+    if (audioSrc != null && audioRef.current) {
+      try {
+        audioRef.current.pause();
+        audioRef.current.currentTime = 0;
+        await audioRef.current.play();
+      } catch {
+        // Audio playback may fail due to browser autoplay policy
       }
     }
 
@@ -52,8 +47,7 @@ export const CtaButton = ({
             if (buttonClic.copyValue) {
               navigator.clipboard
                 .writeText(buttonClic.copyValue)
-                .then(() => console.log("Copied to clipboard!"))
-                .catch((err) => console.error("Copy failed", err));
+                .catch(() => {});
             }
             if (buttonClic.url) {
               window.location.href = buttonClic.url;
@@ -66,7 +60,6 @@ export const CtaButton = ({
       : undefined;
 
     // Toast
-    console.log("Triggering Sileo");
     try {
       switch (propType) {
         case "success":
@@ -125,32 +118,26 @@ export const CtaButton = ({
                 fill: propFill,
               },
             });
-          } else {
-            console.error("propPromise is required when propType is 'promise'");
           }
           break;
       }
-    } catch (e) {
-      console.error("Sileo error", e);
+    } catch {
+      // Toast rendering failed silently
     }
   };
 
   return (
     <>
-      <div
-        role="button"
-        tabIndex={0}
+      <button
+        type="button"
         onClick={handleClick}
-        onKeyDown={(e) => {
-          if (e.key === "Enter" || e.key === " ") handleClick();
-        }}
-        className="cursor-pointer select-none inline-block outline-none"
+        className="cursor-pointer select-none inline-block outline-none bg-transparent border-none p-0"
       >
-        <h2 className="text-3xl md:text-6xl font-black text-[var(--color-purple)] uppercase leading-tight mb-6 md:mb-10 hover:scale-105 transition-transform duration-300">
+        <h2 className="text-3xl md:text-6xl font-black text-primary uppercase leading-tight mb-6 md:mb-10 hover:scale-105 transition-transform duration-300">
           {propTitle}
         </h2>
-      </div>
-      <audio ref={audioRef} src={audioSrc} preload="auto" />
+      </button>
+      {audioSrc && <audio ref={audioRef} src={audioSrc} preload="none" />}
     </>
   );
 };

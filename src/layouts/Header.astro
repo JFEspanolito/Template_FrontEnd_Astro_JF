@@ -17,9 +17,9 @@ const links = [
   class="sticky top-0 z-50 flex w-full items-center justify-center font-sans bg-background text-foreground transition-colors duration-300"
   id="main-header"
 >
-  <nav class="container flex items-center justify-between px-8 py-4 mx-auto w-full max-w-7xl" aria-label="Global">
-    {/* LOGO (Desktop & Mobile visible) */}
-    <div class="flex lg:flex-1">
+  <nav class="container mx-auto grid w-full max-w-7xl grid-cols-[1fr_auto] items-center px-8 py-4 lg:grid-cols-3" aria-label="Global">
+    {/* LOGO */}
+    <div class="flex min-w-0 items-center justify-start">
       <a class="flex items-center gap-2" href="/" title={`${config.appName} homepage`}>
         <img src={faviconUrl.src} alt={`${config.appName} logo`} class="w-8 h-8" width="32" height="32" />
         <span class="font-extrabold text-lg whitespace-nowrap">
@@ -28,28 +28,34 @@ const links = [
       </a>
     </div>
 
-    {/* BURGER BUTTON (Mobile Only) */}
-    <div class="flex lg:hidden">
-      <button id="open-menu-btn" type="button" class="-m-2.5 inline-flex items-center justify-center rounded-md p-2.5 text-current">
-        <span class="sr-only">Open main menu</span>
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"></path>
-        </svg>
-      </button>
-    </div>
-
-    <ThemeToggle client:only="react" />
-    <LanguageSwitcher client:only="react" />
-
-    {/* LINKS (Desktop Only) */}
-    <div class="hidden lg:flex lg:flex-1 lg:justify-center lg:gap-12 lg:items-center">
+    {/* LINKS (Desktop Only — centered) */}
+    <div class="hidden lg:flex lg:items-center lg:justify-center lg:gap-12">
       {
         links.map((link) => (
-          <a href={link.href} class="link link-hover text-sm font-semibold leading-6" title={link.label}>
+          <a href={link.href} class="text-sm font-semibold leading-6 hover:text-primary transition-colors" title={link.label}>
             {link.label}
           </a>
         ))
       }
+    </div>
+
+    {/* RIGHT SIDE: Controls (Desktop) + Burger (Mobile) */}
+    <div class="flex items-center justify-end gap-3">
+      {/* Theme & Language — visible only on desktop */}
+      <div class="hidden lg:flex lg:items-center lg:gap-3">
+        <ThemeToggle client:only="react" />
+        <LanguageSwitcher client:only="react" />
+      </div>
+
+      {/* BURGER BUTTON (Mobile Only) */}
+      <div class="flex lg:hidden">
+        <button id="open-menu-btn" type="button" class="-m-2.5 inline-flex items-center justify-center rounded-md p-2.5 text-current">
+          <span class="sr-only">Open main menu</span>
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"></path>
+          </svg>
+        </button>
+      </div>
     </div>
   </nav>
 
@@ -72,15 +78,17 @@ const links = [
         </button>
       </div>
 
-      {/* Links Móviles */}
+      {/* Mobile Controls + Links */}
       <div class="flow-root mt-6">
-        <div class="py-4">
-          <ThemeToggle client:only="react" />
-          <LanguageSwitcher client:only="react" />
+        <div class="py-4 space-y-6">
+          <div class="flex items-center gap-3">
+            <ThemeToggle client:only="react" />
+            <LanguageSwitcher client:only="react" />
+          </div>
           <div class="flex flex-col gap-y-4 items-start">
             {
               links.map((link) => (
-                <a href={link.href} class="link link-hover text-base font-semibold leading-7 mobile-link" title={link.label}>
+                <a href={link.href} class="text-base font-semibold leading-7 hover:text-primary transition-colors mobile-link" title={link.label}>
                   {link.label}
                 </a>
               ))
@@ -93,23 +101,25 @@ const links = [
 </header>
 
 <script>
-  // Lógica del Menú Móvil (Vanilla JS = 0kb React overhead para esto)
-  const menuBtn = document.getElementById("open-menu-btn");
-  const closeBtn = document.getElementById("close-menu-btn");
-  const mobileMenu = document.getElementById("mobile-menu");
-  const mobileLinks = document.querySelectorAll(".mobile-link");
+  // Lógica del Menú Móvil (Vanilla JS = 0kb React overhead)
+  // astro:page-load fires on first load AND after each View Transition navigation
+  document.addEventListener("astro:page-load", () => {
+    const menuBtn = document.getElementById("open-menu-btn");
+    const closeBtn = document.getElementById("close-menu-btn");
+    const mobileMenu = document.getElementById("mobile-menu");
+    const mobileLinks = document.querySelectorAll(".mobile-link");
 
-  function toggleMenu() {
-    mobileMenu?.classList.toggle("hidden");
-  }
+    function toggleMenu() {
+      mobileMenu?.classList.toggle("hidden");
+    }
 
-  menuBtn?.addEventListener("click", toggleMenu);
-  closeBtn?.addEventListener("click", toggleMenu);
+    menuBtn?.addEventListener("click", toggleMenu);
+    closeBtn?.addEventListener("click", toggleMenu);
 
-  // Cerrar menú al hacer clic en un link (comportamiento SPA/Ancla)
-  mobileLinks.forEach((link) => {
-    link.addEventListener("click", () => {
-      mobileMenu?.classList.add("hidden");
+    mobileLinks.forEach((link) => {
+      link.addEventListener("click", () => {
+        mobileMenu?.classList.add("hidden");
+      });
     });
   });
 </script>

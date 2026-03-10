@@ -11,8 +11,8 @@ import tailwindcss from '@tailwindcss/vite';
 
 // https://astro.build/config
 export default defineConfig({
-  // ⚠️ CAMBIAR: Importante para que funcione el sitemap
-  site: 'https://tudominio.com', 
+  // ⚠️ CAMBIAR antes de deploy: afecta sitemap, canonical URLs y og:url
+  site: process.env.PUBLIC_SITE_URL || 'https://tudominio.com',
 
   integrations: [
     react(),

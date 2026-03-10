@@ -1,15 +1,16 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import ButtonBasic from "@/components/buttons/ButtonBasic.astro";
-import { CtaButton } from "@/components/ui/CtaButton";
 ---
 
 <Layout title="Home Page">
-  Hola!
+  <div class="relative flex items-center justify-center font-sans bg-background text-foreground">
+    <div class="w-full max-w-3xl mx-auto px-8 py-24">
+      Hola!
 
-  <ButtonBasic id="mi-boton-alerta" title="Entrar" typeButton={1} size={1} />
+      <ButtonBasic id="mi-boton-alerta" title="Entrar" typeButton={1} size={1} />
 
-  <!-- <CtaButton
+      <!-- <CtaButton
     client:load
     audioSrc={heyListenAudio}
     propType="success"
@@ -21,14 +22,29 @@ import { CtaButton } from "@/components/ui/CtaButton";
     propDesc={lang === "en" ? "Send me a mail or use other social media" : "Envíame un correo o usa otra red social"}
     propTitle={profileInfo.callToAction}
   /> -->
-</Layout>
+    </div>
+  </div>
 
-<script>
-  // Esto va en tu pagina.astro
-  const btn = document.getElementById("mi-boton-alerta");
-  if (btn) {
-    btn.addEventListener("click", () => {
-      alert("¡Funciona sin React y carga volando! 🚀");
-    });
-  }
-</script>
+  <script is:inline>
+    function bindAlertButton() {
+      const btn = document.getElementById("mi-boton-alerta");
+
+      if (!(btn instanceof HTMLButtonElement) || btn.dataset.alertBound === "true") {
+        return;
+      }
+
+      btn.dataset.alertBound = "true";
+      btn.addEventListener("click", () => {
+        alert("¡Funciona sin React y carga volando! 🚀");
+      });
+    }
+
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", bindAlertButton, { once: true });
+    } else {
+      bindAlertButton();
+    }
+
+    document.addEventListener("astro:page-load", bindAlertButton);
+  </script>
+</Layout>
