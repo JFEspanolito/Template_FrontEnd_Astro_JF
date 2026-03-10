@@ -1,6 +1,22 @@
 
 # Astro 5 + React 19 Template (Modern Island Architecture)
 
+## Shared AI Permission Policy
+
+Canonical policy file: `/.llmrules`.
+
+This repository uses `/.llmrules` as the baseline allow/deny permission policy for AI agents.
+Some tools may not enforce this file automatically, so each client must map these rules
+to its native permission system.
+
+If a client cannot read `/.llmrules`, apply equivalent restrictions manually.
+
+Recommended precedence:
+
+1. Client-native security policy (hard enforcement)
+2. `/.llmrules` (repository baseline)
+3. `llms.md`, `CLAUDE.md`, or other guidance files (behavioral/context guidance)
+
 ## 1. Project Overview
 
 High-performance, SEO-optimized boilerplate using Astro 5 and React 19.  
