@@ -1,0 +1,27 @@
+---
+// Importando Datos
+import { configProject as config } from "@/data/configProject";
+
+// Importando Componentes
+import Layout from "@/layouts/Layout.astro";
+
+// Importando Context
+import { useTranslations } from "@/i18n/ui";
+const lang = (Astro.cookies.get("lang")?.value as "es" | "en") || "es";
+const t = useTranslations(lang);
+---
+
+<Layout title={`${config.tabname} - 404`}>
+  <section class="md:col-span-8 lg:col-span-9 flex flex-col items-center justify-center min-h-[50vh] text-center">
+    <h1 class="text-8xl font-display font-bold text-[var(--highlight-one)] mb-4">404</h1>
+    <p class="text-xl text-[var(--foreground-muted)] mb-8">
+      {lang === "es" ? "Página no encontrada" : "Page not found"}
+    </p>
+    <a
+      href="/"
+      class="px-6 py-3 text-sm font-bold uppercase tracking-widest border border-[var(--border-dim-one)] text-[var(--foreground-color)] hover:border-[var(--highlight-one)] hover:text-[var(--foreground-highlight-one)] transition-all rounded-lg"
+    >
+      {t("nav.menu1")}
+    </a>
+  </section>
+</Layout>

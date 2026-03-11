@@ -8,7 +8,7 @@ export function LanguageSwitcher() {
   });
 
   const changeLanguage = (lang: "es" | "en") => {
-    document.cookie = `lang=${lang}; path=/; max-age=31536000; samesite=lax${location.protocol === 'https:' ? '; secure' : ''}`;
+    document.cookie = `lang=${lang}; path=/; max-age=31536000`;
     window.location.reload();
   };
 

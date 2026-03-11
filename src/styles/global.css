@@ -1,51 +1,169 @@
 /* src/styles/global.css */
 @import "tailwindcss";
 
-/* Enable class-based dark mode for Tailwind dark: variants */
-@custom-variant dark (&:where(.dark, .dark *));
+/* NOTE: Google Fonts are loaded via <link> in Layout.astro for better performance.
+   Do NOT use @import url() here — CSS @import blocks rendering. */
+
+/* ================================================================== */
 
 @theme {
-  --font-sans: 'Inter', system-ui, sans-serif;
+  /* Background colors */
+  --body-background: var(--color-background);
+  --card-background: var(--bg-card);
 
-  --color-primary: #661AE6;
-  --color-success: #22c55e;
-  --color-failed: #ef4444;
+  /* Buttons Background colors (use --raw-* prefix to avoid circular refs) */
+  --btn-primary: var(--raw-btn-primary);
+  --btn-secondary: var(--raw-btn-secondary);
+  --btn-text-primary: var(--raw-btn-text-primary);
+  --btn-text-secondary: var(--raw-btn-text-secondary);
 
-  --color-background: #ffffff;
-  --color-foreground: #0f172a;
+  /* Text */
+  --foreground-color: var(--color-foreground);
+  --foreground-muted: var(--text-muted);
+  --foreground-highlight-one: var(--text-highlight-1);
+  --foreground-highlight-two: var(--text-highlight-2);
+
+  /* Borders */
+  --border-dim-one: var(--border-dim);
+  --border-highlight-one: var(--border-highlight);
+
+  /* Highlight */
+  --highlight-one: var(--highlight-1);
+  --highlight-two: var(--highlight-2);
+
+  /* Shadow */
+  --shadow-soft: var(--raw-shadow-soft);
+
+  /* Fonts */
+  --font-display: "Syne", "sans-serif";
+  --font-body: "Space Grotesk", "sans-serif";
 }
 
-/* Dark theme via .dark class (applied by ThemeToggle + inline script) */
-.dark {
-  --color-background: #0f172a;
-  --color-foreground: #ffffff;
-}
-
-/* No-JS fallback: respect system preference when JS hasn't loaded */
-@media (prefers-color-scheme: dark) {
-  html:not([data-theme]) {
-    --color-background: #0f172a;
-    --color-foreground: #ffffff;
-  }
-}
-
-/* UI control variables (ThemeToggle, LanguageSwitcher) */
+/* Custom CSS Variables: define color values for light/dark themes.
+   :root = light mode | html.dark = dark mode
+   These feed the @theme tokens above. */
 :root {
-  --btn-primary: #661AE6;
-  --btn-secondary: #f1f5f9;
-  --btn-text-primary: #ffffff;
-  --btn-text-secondary: #64748b;
-  --shadow-soft: 0 1px 3px rgba(0, 0, 0, 0.1);
+  /* Background colors */
+  --color-background: #6a6e72;
+  --bg-card: #f4f4f5;
+
+  /* Buttons Background colors */
+  --raw-btn-primary: #ffffff;
+  --raw-btn-secondary: rgba(0, 0, 0, 0.06);
+  --raw-btn-text-primary: #111111;
+  --raw-btn-text-secondary: #1c2c42;
+
+  /* Text Colors */
+  --text-muted: #010305;
+  --color-foreground: #111111;
+  --text-highlight-1: #a3e635;
+  --text-highlight-2: #22d3ee;
+
+  /* Borders */
+  --border-dim: rgba(0, 0, 0, 0.1);
+  --border-highlight: rgba(163, 230, 53, 0.5);
+
+  /* Highlight */
+  --highlight-1: #a3e635;
+  --highlight-2: #22d3ee;
+
+  /* Shadow */
+  --raw-shadow-soft: 0 1px 3px rgba(0, 0, 0, 0.4);
 }
 
-.dark {
-  --btn-secondary: #1e293b;
-  --btn-text-secondary: #94a3b8;
-  --shadow-soft: 0 1px 3px rgba(0, 0, 0, 0.3);
+html.dark {
+  /* Background colors */
+  --color-background: #111111;
+  --bg-card: #18181b;
+
+  /* Buttons Background colors */
+  --raw-btn-primary: #27272a;
+  --raw-btn-secondary: rgba(255, 255, 255, 0.06);
+  --raw-btn-text-primary: #e2e8f0;
+  --raw-btn-text-secondary: #94a3b8;
+
+  /* Text Colors */
+  --color-foreground: #e2e8f0;
+  --text-muted: #94a3b8;
+  --text-highlight-1: #a3e635;
+  --text-highlight-2: #22d3ee;
+
+  /* Borders */
+  --border-dim: rgba(255, 255, 255, 0.08);
+  --border-highlight: rgba(163, 230, 53, 0.5);
+
+  /* Highlight */
+  --highlight-1: #a3e635;
+  --highlight-2: #22d3ee;
+
+  /* Shadow */
+  --raw-shadow-soft: 0 1px 3px rgba(0, 0, 0, 0.4);
 }
+
+/* ================================================================== */
 
 body {
   background-color: var(--color-background);
   color: var(--color-foreground);
-  font-family: var(--font-sans);
+  letter-spacing: -0.01em;
+  line-height: 1.6;
+  font-family: var(--font-body);
+  font-size: medium;
+}
+
+.editorial-title {
+  letter-spacing: -0.03em;
+}
+
+.project-card-h {
+  height: 140px;
+}
+
+@media (min-width: 768px) {
+  .project-card-h {
+    height: 160px;
+  }
+}
+
+.nav-link {
+  letter-spacing: 0.1em;
+  transition: all 0.3s ease;
+}
+
+.neon-glow:hover {
+  box-shadow: 0 0 15px rgba(163, 230, 53, 0.15);
+}
+
+/* Material Symbols sizing fix if needed */
+.material-symbols-outlined {
+  font-variation-settings:
+    "FILL" 0,
+    "wght" 400,
+    "GRAD" 0,
+    "opsz" 24;
+}
+
+/* Custom z-index for Sileo Toaster */
+.sileo-z-index {
+  z-index: 9999 !important;
+}
+
+/* STLViewer sidebar scrollbar */
+.stl-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-dim) transparent;
+}
+.stl-scroll::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+.stl-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+.stl-scroll::-webkit-scrollbar-thumb {
+  background: var(--border-dim);
+  border-radius: 99px;
+}
+.stl-scroll::-webkit-scrollbar-thumb:hover {
+  background: var(--border-highlight);
 }

@@ -1,125 +1,181 @@
 ---
-import logoImg from "@/assets/astro.svg";
-import config from "@/data/configProject";
+import { Image } from "astro:assets";
+import bbnLogo from "../assets/logo.webp";
+import { configProject as config } from "@/data/configProject";
+import { profile } from "@/data/Profile";
 import ThemeToggle from "@/components/buttons/ThemeToggle";
 import { LanguageSwitcher } from "@/components/buttons/LanguageSwitcher";
 
-const faviconUrl = logoImg;
+const pathname = new URL(Astro.request.url).pathname;
+const currentPath = pathname.slice(1);
 
-const links = [
-  { href: "/#Menu1", label: "Menu 1" },
-  { href: "/#Menu2", label: "Menu 2" },
-  { href: "/#Menu3", label: "Menu 3" },
-];
+const isActive = (path: string) => {
+  if (path === "" && currentPath === "") return true;
+  if (path !== "" && currentPath.startsWith(path)) return true;
+  return false;
+};
+
+import { useTranslations } from "@/i18n/ui";
+const lang = (Astro.cookies.get("lang")?.value as "es" | "en") || "es";
+const t = useTranslations(lang);
 ---
 
-<header
-  class="sticky top-0 z-50 flex w-full items-center justify-center font-sans bg-background text-foreground transition-colors duration-300"
-  id="main-header"
->
-  <nav class="container mx-auto grid w-full max-w-7xl grid-cols-[1fr_auto] items-center px-8 py-4 lg:grid-cols-3" aria-label="Global">
-    {/* LOGO */}
-    <div class="flex min-w-0 items-center justify-start">
-      <a class="flex items-center gap-2" href="/" title={`${config.appName} homepage`}>
-        <img src={faviconUrl.src} alt={`${config.appName} logo`} class="w-8 h-8" width="32" height="32" />
-        <span class="font-extrabold text-lg whitespace-nowrap">
-          {config.appName}
-        </span>
-      </a>
+<header class="w-full border-b border-[var(--border-dim-one)] bg-[var(--body-background)]/90 backdrop-blur-md sticky top-0 z-50">
+  <div class="w-full px-6 lg:px-12 h-20 flex items-center justify-between">
+    <div class="flex items-center gap-4 group">
+      <div class="flex items-center justify-center group-hover:opacity-80 transition-opacity duration-300">
+        <a class="flex items-center gap-3 py-2 text-sm font-bold transition-all" href="/">
+          <Image src={bbnLogo} alt="Logo" class="h-8 w-auto object-contain" />
+          <span class="font-display font-extrabold text-xl tracking-[0.1em] uppercase text-[var(--foreground-color)]">{config.appName}</span>
+        </a>
+      </div>
     </div>
 
-    {/* LINKS (Desktop Only — centered) */}
-    <div class="hidden lg:flex lg:items-center lg:justify-center lg:gap-12">
-      {
-        links.map((link) => (
-          <a href={link.href} class="text-sm font-semibold leading-6 hover:text-primary transition-colors" title={link.label}>
-            {link.label}
-          </a>
-        ))
-      }
-    </div>
-
-    {/* RIGHT SIDE: Controls (Desktop) + Burger (Mobile) */}
-    <div class="flex items-center justify-end gap-3">
-      {/* Theme & Language — visible only on desktop */}
-      <div class="hidden lg:flex lg:items-center lg:gap-3">
+    <!-- Desktop Nav -->
+    <nav class="hidden md:flex items-center gap-8">
+      <div class="flex items-center gap-6">
         <ThemeToggle client:only="react" />
         <LanguageSwitcher client:only="react" />
-      </div>
 
-      {/* BURGER BUTTON (Mobile Only) */}
-      <div class="flex lg:hidden">
-        <button id="open-menu-btn" type="button" class="-m-2.5 inline-flex items-center justify-center rounded-md p-2.5 text-current">
-          <span class="sr-only">Open main menu</span>
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"></path>
-          </svg>
+        <!-- Contact Me -->
+        <button
+          id="copy-email"
+          class="text-xs font-bold uppercase tracking-widest text-[var(--foreground-highlight-one)] hover:text-[var(--foreground-color)] transition-all cursor-pointer flex items-center gap-2 group"
+          data-email={profile.email}
+        >
+          <span class="text-[var(--foreground-muted)] font-medium">
+      {t("contact.button")}</span>
+          <span id="email-label">{profile.email}</span>
         </button>
-      </div>
-    </div>
-  </nav>
 
-  {/* MOBILE MENU OVERLAY (Hidden by default) */}
-  <div id="mobile-menu" class="hidden relative z-50">
-    <div
-      class="fixed inset-y-0 right-0 z-10 w-full px-8 py-4 overflow-y-auto bg-background text-foreground sm:max-w-sm sm:ring-1 sm:ring-neutral/10 transform origin-right transition ease-in-out duration-300"
-    >
-      {/* Header del Menú Móvil */}
-      <div class="flex items-center justify-between">
-        <a class="flex items-center gap-2 shrink-0" title={`${config.appName} homepage`} href="/">
-          <img src={faviconUrl.src} alt={`${config.appName} logo`} class="w-8 h-8" width="32" height="32" />
-          <span class="font-extrabold text-lg">{config.appName}</span>
-        </a>
-        <button id="close-menu-btn" type="button" class="-m-2.5 rounded-md p-2.5 text-current">
-          <span class="sr-only">Close menu</span>
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path>
-          </svg>
-        </button>
-      </div>
+        <!-- Separator -->
+        <div class="h-4 w-[1px] bg-[var(--border-dim-one)]"></div>
 
-      {/* Mobile Controls + Links */}
-      <div class="flow-root mt-6">
-        <div class="py-4 space-y-6">
-          <div class="flex items-center gap-3">
-            <ThemeToggle client:only="react" />
-            <LanguageSwitcher client:only="react" />
-          </div>
-          <div class="flex flex-col gap-y-4 items-start">
-            {
-              links.map((link) => (
-                <a href={link.href} class="text-base font-semibold leading-7 hover:text-primary transition-colors mobile-link" title={link.label}>
-                  {link.label}
-                </a>
-              ))
-            }
-          </div>
+        <div class="flex items-center gap-6 text-[var(--foreground-muted)]">
+          {
+            profile.socialLinks.map((link) => (
+              <a
+                href={link.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="text-xs font-medium nav-link hover:text-[var(--foreground-highlight-one)] uppercase tracking-widest text-[var(--foreground-muted)]"
+              >
+                {link.name}
+              </a>
+            ))
+          }
         </div>
       </div>
-    </div>
+    </nav>
+
+    <!-- Mobile Menu Button -->
+    <button id="mobile-menu-open" class="md:hidden p-2 text-[var(--foreground-color)] hover:text-[var(--foreground-highlight-one)] transition-colors">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-5 h-5">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"></path>
+      </svg>
+    </button>
   </div>
 </header>
 
+<!-- Mobile Menu Drawer (Hidden by default) -->
+<div
+  id="mobile-menu-drawer"
+  class="fixed inset-0 z-[100] bg-[var(--body-background)] translate-x-full transition-transform duration-500 md:hidden w-screen h-screen overflow-hidden"
+>
+  <div class="flex flex-col h-full w-full bg-[var(--body-background)]">
+    <!-- Drawer Header -->
+    <div class="flex items-center justify-between px-6 h-20 border-b border-[var(--border-dim-one)] w-full">
+      <div class="flex items-center gap-3">
+        <Image src={bbnLogo} alt="Logo" class="h-8 w-auto object-contain" />
+        <span class="font-display font-bold text-lg text-[var(--foreground-color)]">{config.appName}</span>
+      </div>
+      <button id="mobile-menu-close" class="p-2 text-[var(--foreground-color)] hover:text-[var(--foreground-highlight-one)] transition-colors">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-8 h-8">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Drawer Nav -->
+    <nav class="flex flex-col p-8 space-y-4">
+      <ThemeToggle client:only="react" />
+      <a
+        href="/"
+        class={`text-2xl font-display font-bold tracking-tight transition-all py-3 ${isActive("") ? "text-[var(--foreground-highlight-one)] pl-4 border-l-2 border-[var(--highlight-one)]" : "text-[var(--foreground-color)]/80 hover:text-[var(--foreground-color)]"}`}
+      >
+        {t("nav.menu1")}
+      </a>
+      <a
+        href="/CV"
+        class={`text-2xl font-display font-bold tracking-tight transition-all py-3 ${isActive("CV") ? "text-[var(--foreground-highlight-one)] pl-4 border-l-2 border-[var(--highlight-one)]" : "text-[var(--foreground-color)]/80 hover:text-[var(--foreground-color)]"}`}
+      >
+        {t("nav.menu2")}
+      </a>
+    </nav>
+
+    <!-- Drawer Footer -->
+    <div class="mt-auto p-10 border-t border-white/5 bg-white/[0.02]">
+      <div class="flex flex-col gap-6">
+        {
+          profile.socialLinks.map((link) => (
+            <a
+              href={link.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="text-sm text-[var(--foreground-muted)] hover:text-[var(--foreground-highlight-one)] transition-colors inline-flex items-center gap-2"
+            >
+              {link.name}
+            </a>
+          ))
+        }
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
-  // Lógica del Menú Móvil (Vanilla JS = 0kb React overhead)
-  // astro:page-load fires on first load AND after each View Transition navigation
-  document.addEventListener("astro:page-load", () => {
-    const menuBtn = document.getElementById("open-menu-btn");
-    const closeBtn = document.getElementById("close-menu-btn");
-    const mobileMenu = document.getElementById("mobile-menu");
-    const mobileLinks = document.querySelectorAll(".mobile-link");
+  const openBtn = document.getElementById("mobile-menu-open");
+  const closeBtn = document.getElementById("mobile-menu-close");
+  const drawer = document.getElementById("mobile-menu-drawer");
 
-    function toggleMenu() {
-      mobileMenu?.classList.toggle("hidden");
-    }
+  if (openBtn && closeBtn && drawer) {
+    openBtn.addEventListener("click", () => {
+      drawer.classList.remove("translate-x-full");
+      document.body.style.overflow = "hidden";
+    });
 
-    menuBtn?.addEventListener("click", toggleMenu);
-    closeBtn?.addEventListener("click", toggleMenu);
+    closeBtn.addEventListener("click", () => {
+      drawer.classList.add("translate-x-full");
+      document.body.style.overflow = "";
+    });
 
-    mobileLinks.forEach((link) => {
+    // Close on link click
+    const links = drawer.querySelectorAll("nav a");
+    links.forEach((link) => {
       link.addEventListener("click", () => {
-        mobileMenu?.classList.add("hidden");
+        drawer.classList.add("translate-x-full");
+        document.body.style.overflow = "";
       });
     });
-  });
+  }
+
+  // Copy Email Logic
+  const copyBtn = document.getElementById("copy-email");
+  const emailLabel = document.getElementById("email-label");
+
+  if (copyBtn && emailLabel) {
+    copyBtn.addEventListener("click", () => {
+      const email = copyBtn.getAttribute("data-email") || "";
+      navigator.clipboard.writeText(email).then(() => {
+        const originalText = emailLabel.innerText;
+        emailLabel.innerText = "COPIED TO CLIPBOARD!";
+        copyBtn.style.color = "var(--foreground-color)";
+
+        setTimeout(() => {
+          emailLabel.innerText = originalText;
+          copyBtn.style.color = "";
+        }, 2000);
+      });
+    });
+  }
 </script>

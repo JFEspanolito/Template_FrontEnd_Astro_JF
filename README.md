@@ -1,7 +1,37 @@
-# Template_FrontEnd_Astro_JF
+# Portfolio BoilerPlate
 
 Template minimal basado en Astro 5.x y React 19.x.
 Migra la robustez de una arquitectura empresarial de Next.js hacia la agilidad de las Islas de Astro, manteniendo separación clara de lógica de negocio mediante DDD (Domain-Driven Design).
+
+## Instalación
+
+1. Clona el repositorio:
+
+   ```bash
+   git clone https://github.com/TierraHuecaStudio/Plantilla_Astro_CV.git
+   ```
+
+2. Navega al directorio del proyecto:
+
+   ```
+   cd Plantilla_Astro_CV
+   ```
+
+3. Instala las dependencias:
+
+   ```
+   pnpm install
+   ```
+
+## Uso
+
+1. Inicia el servidor de desarrollo:
+
+   ```
+   pnpm dev
+   ```
+
+2. Abre tu navegador y visita [http://localhost:3000](http://localhost:3000) para ver tu portafolio.
 
 ### ⚙️ Stack
 

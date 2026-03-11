@@ -23,7 +23,7 @@ function writeConsentCookie(val: string) {
   if (typeof document === "undefined") return;
   const d = new Date();
   d.setFullYear(d.getFullYear() + 1);
-  document.cookie = `eb_consent=${encodeURIComponent(val)}; expires=${d.toUTCString()}; path=/; samesite=lax${location.protocol === 'https:' ? '; secure' : ''}`;
+  document.cookie = `eb_consent=${encodeURIComponent(val)}; expires=${d.toUTCString()}; path=/; samesite=lax`;
 }
 
 export default function AnalyticsBanner() {
@@ -31,27 +31,31 @@ export default function AnalyticsBanner() {
   const [mounted, setMounted] = useState(false);
 
   const loadScripts = useCallback(() => {
-    if (!GA_ID || !CLARITY_ID) return;
+    if (!GA_ID && !CLARITY_ID) return;
 
     // Google Analytics
-    const gaScript = document.createElement("script");
-    gaScript.src = `https://www.googletagmanager.com/gtag/js?id=${GA_ID}`;
-    gaScript.async = true;
-    document.head.appendChild(gaScript);
+    if (GA_ID) {
+      const gaScript = document.createElement("script");
+      gaScript.src = `https://www.googletagmanager.com/gtag/js?id=${GA_ID}`;
+      gaScript.async = true;
+      document.head.appendChild(gaScript);
 
-    window.dataLayer = window.dataLayer || [];
-    window.gtag = function() { window.dataLayer?.push(arguments); };
-    window.gtag("js", new Date());
-    window.gtag("config", GA_ID);
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function() { window.dataLayer?.push(arguments); };
+      window.gtag("js", new Date());
+      window.gtag("config", GA_ID);
+    }
 
     // Clarity
-    (function(c: any, l: any, a: any, r: any, i: any){
-      let t: any; let y: any;
-      c[a] = c[a] || function(){ (c[a].q = c[a].q || []).push(arguments); };
-      t = l.createElement(r); t.async = true; t.src = "https://www.clarity.ms/tag/" + i;
-      y = l.getElementsByTagName(r)[0];
-      if (y && y.parentNode) y.parentNode.insertBefore(t, y);
-    })(window, document, "clarity", "script", CLARITY_ID);
+    if (CLARITY_ID) {
+      (function(c: any, l: any, a: any, r: any, i: any){
+        let t: any; let y: any;
+        c[a] = c[a] || function(){ (c[a].q = c[a].q || []).push(arguments); };
+        t = l.createElement(r); t.async = true; t.src = "https://www.clarity.ms/tag/" + i;
+        y = l.getElementsByTagName(r)[0];
+        if (y && y.parentNode) y.parentNode.insertBefore(t, y);
+      })(window, document, "clarity", "script", CLARITY_ID);
+    }
   }, []);
 
   useEffect(() => {
@@ -59,8 +63,10 @@ export default function AnalyticsBanner() {
     const savedConsent = getConsent();
     setConsentState(savedConsent);
 
-    // Speed Insights (anonymous performance data, no consent needed)
-    injectSpeedInsights();
+    // Speed Insights
+    if (typeof injectSpeedInsights === "function") {
+      injectSpeedInsights();
+    }
 
     if (savedConsent === "accepted") {
       loadScripts();
@@ -78,30 +84,29 @@ export default function AnalyticsBanner() {
     setConsentState("denied");
   };
 
-  // Evitamos renderizado en servidor
   if (!mounted) return null;
 
   return (
-    <Modal 
-      isModalOpen={consent === ""} 
-      setIsModalOpen={() => {}} // Pasamos función vacía para que no se cierre al hacer click fuera
+    <Modal
+      isModalOpen={consent === ""}
+      setIsModalOpen={() => {}}
       title="Configuración de Cookies"
-      preventClose={true} // Usamos tu prop para obligar a elegir
+      preventClose={true}
     >
       <div className="space-y-4">
-        <p className="text-sm opacity-70">
+        <p className="text-sm text-gray-300">
           Utilizamos cookies para mejorar tu experiencia y analizar el tráfico mediante Google Analytics y Microsoft Clarity.
         </p>
         <div className="flex justify-end gap-3">
           <button
             onClick={decline}
-            className="px-4 py-2 text-sm font-medium rounded-lg bg-foreground/10 hover:bg-foreground/20 transition-colors"
+            className="px-4 py-2 text-sm font-medium text-[var(--foreground-color)] bg-white/10 rounded-lg hover:bg-white/20 transition-colors"
           >
             Solo esenciales
           </button>
           <button
             onClick={accept}
-            className="px-4 py-2 text-sm font-bold text-white rounded-lg bg-primary hover:opacity-90 transition-opacity"
+            className="px-4 py-2 text-sm font-bold text-[var(--foreground-color)] rounded-lg bg-primary hover:opacity-90 transition-opacity"
           >
             Aceptar todas
           </button>

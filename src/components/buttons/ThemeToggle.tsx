@@ -1,3 +1,4 @@
+"use client";
 import { useEffect, useState } from "react";
 import { Sun, Moon, Monitor } from "lucide-react";
 
@@ -25,9 +26,14 @@ export default function ThemeToggle() {
   }, [theme]);
 
   useEffect(() => {
-    const isDark = resolvedTheme === 'dark';
-    document.documentElement.classList.toggle('dark', isDark);
-    document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
+    if (resolvedTheme === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+    // Sync cookie so SSR can apply the correct class on next navigation (prevents FOUC)
+    const oneYear = 365 * 24 * 60 * 60;
+    document.cookie = `theme=${resolvedTheme}; path=/; max-age=${oneYear}; SameSite=Lax`;
   }, [resolvedTheme]);
 
 

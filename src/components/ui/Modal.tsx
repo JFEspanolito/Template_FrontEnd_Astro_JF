@@ -1,3 +1,5 @@
+"use client";
+
 import { Dialog, Transition } from "@headlessui/react";
 import { Fragment } from "react";
 import type { ReactNode } from "react";
@@ -43,16 +45,16 @@ const Modal = ({ isModalOpen, setIsModalOpen, title = "", children, preventClose
               leaveFrom="opacity-100 scale-100"
               leaveTo="opacity-0 scale-95"
             >
-              <Dialog.Panel className="relative w-full max-w-3xl h-full overflow-visible transform text-left align-middle shadow-xl transition-all rounded-xl bg-background text-foreground border border-[var(--color-success)] p-6 md:p-8">
+              <Dialog.Panel className="relative w-full max-w-3xl h-full overflow-visible transform text-left align-middle shadow-xl transition-all rounded-xl bg-[#0f172a] border border-[var(--highlight-one)] p-6 md:p-8">
                 <div className="flex justify-between items-center mb-4">
-                  <Dialog.Title as="h2" className="font-semibold text-lg">
+                  <Dialog.Title as="h2" className="font-semibold text-[var(--foreground-color)] text-lg">
                     {title}
                   </Dialog.Title>
 
                   {!preventClose && (
                     <button
                       type="button"
-                      className="hover:text-primary transition-colors p-1"
+                      className="text-[var(--foreground-color)] hover:text-primary transition-colors p-1"
                       onClick={() => setIsModalOpen(false)}
                       aria-label="Cerrar"
                     >

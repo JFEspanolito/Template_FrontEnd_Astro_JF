@@ -1,24 +1,21 @@
-# CLAUDE.md - Astro Frontend Boilerplate
+# CLAUDE.md - Astro CV Portfolio Boilerplate
 
 ## Project Overview
-Astro 5 + React 19 boilerplate template for SaaS, portfolios, and web apps. Uses Island Architecture for optimal performance — zero JS by default, hydrate only when needed.
+Modern portfolio/CV boilerplate built with **Astro 5** + **React 19** + **Tailwind CSS v4**.
+Zero JS by default with selective hydration for interactive islands.
 
 ## Tech Stack
-- **Framework**: Astro 5 (Static/SSR)
-- **UI Islands**: React 19 (only for interactive components)
-- **Styling**: Tailwind CSS v4 (Vite plugin, no config file — configured in `global.css` via `@theme`)
-- **Icons**: lucide-react
-- **Toasts**: sileo
-- **Modals**: @headlessui/react
-- **Animations**: framer-motion
-- **Validation**: zod
-- **Analytics**: Google Analytics + Microsoft Clarity (via Partytown web worker)
-- **Speed**: Vercel Speed Insights (anonymous, no consent needed)
-- **Package Manager**: pnpm
+- **Framework:** Astro 5 (SSR mode via `output: "server"`)
+- **Adapter:** `@astrojs/node` (standalone) — swap for `@astrojs/vercel`, `@astrojs/netlify`, etc. for deployment
+- **UI:** React 19 (island architecture via `client:load` / `client:only="react"`)
+- **Styling:** Tailwind CSS v4 (Vite plugin) + CSS custom properties for theming
+- **Fonts:** Google Fonts (Space Grotesk + Syne) loaded via `<link>` in `<head>`
+- **Image Processing:** Sharp (built-in Astro `<Image>`)
+- **Package Manager:** pnpm
 
 ## Commands
-```
-pnpm dev        # Dev server (localhost:4321)
+```bash
+pnpm dev        # Start dev server (localhost:4321)
 pnpm build      # Production build
 pnpm preview    # Preview production build
 ```
@@ -26,126 +23,89 @@ pnpm preview    # Preview production build
 ## Project Structure
 ```
 src/
-├── assets/          # Static assets (SVGs, images) — processed by Astro
+├── assets/          # Images (WebP format preferred)
 ├── components/
-│   ├── analytics/   # AnalyticsBanner.tsx — GDPR consent + GA/Clarity loader
-│   ├── buttons/     # ButtonBasic.astro, ThemeToggle.tsx, LanguageSwitcher.tsx
-│   ├── pages/       # React view components (for DDD page pattern)
-│   └── ui/          # Reusable UI: Modal.tsx, CtaButton.tsx
-├── core/            # Domain logic (DDD pattern)
-├── data/            # configProject.ts — centralized app metadata + SEO
-├── i18n/            # LanguageContext.tsx + ui.ts (es/en translations)
+│   ├── analytics/   # AnalyticsBanner (cookie consent + GA + Clarity)
+│   ├── buttons/     # ButtonBasic, ThemeToggle, LanguageSwitcher, SileoNotify
+│   ├── layout/      # vertical_menu (sidebar navigation)
+│   └── ui/          # Modal (Headless UI Dialog)
+├── data/            # Content & config (configProject, Profile, CV, Proyectos)
+├── i18n/            # Translations (ES/EN) via cookie-based language
 ├── layouts/         # Layout.astro, Header.astro, Footer.astro
-├── libs/            # Utilities — cn() helper (clsx + tailwind-merge)
-├── middleware.ts    # Security headers (X-Frame-Options, CSP, etc.)
-├── pages/           # Astro file-based routing
-└── styles/          # global.css — Tailwind @theme tokens + dark mode + UI vars
+├── libs/            # Utilities (cn = clsx + tailwind-merge)
+├── pages/           # File-based routing (index, CV, projects/[pageID], 404)
+└── styles/          # global.css (Tailwind + CSS custom properties)
 ```
 
-## Key Architecture Patterns
+## Architecture Decisions
 
-### Island Architecture
-- `.astro` components = zero JS shipped (static HTML)
-- React components need `client:*` directives for interactivity:
-  - `client:load` — hydrate immediately (critical interactive UI like Toaster)
-  - `client:idle` — hydrate when browser is idle (non-critical like AnalyticsBanner)
-  - `client:visible` — hydrate when scrolled into viewport
-  - `client:only="react"` — client-only, no SSR (ThemeToggle, LanguageSwitcher — needs localStorage/cookies)
-- **Rule**: Prefer `.astro` for static content. Only use React when interactivity is required.
-- **Rule**: NEVER add `"use client"` — that's Next.js, not Astro. Use `client:*` directives on the component tag instead.
+### Theming System
+- CSS custom properties defined in `:root` (light) and `html.dark` (dark)
+- `@theme` block in global.css bridges CSS vars to Tailwind tokens
+- **Important:** Raw CSS vars use `--raw-*` or `--color-*` prefixes in `:root` to avoid circular references with `@theme` tokens of the same name
+- Theme toggle persists to `localStorage`
 
-### DDD Page Pattern
-Route (Astro) → View (React). Pages in `src/pages/` are Astro files that import React view components from `src/components/pages/`.
+### Internationalization (i18n)
+- Language stored in a cookie (`lang=es|en`)
+- Server-side: `Astro.cookies.get("lang")` reads the cookie per request
+- Client-side: `LanguageSwitcher` component sets the cookie and reloads
+- All translations in `src/i18n/ui.ts`
+- **Note:** SSR is required because cookies are read at request time
 
-### Dark Mode
-- Class-based: `.dark` class on `<html>` element
-- **FOUC prevention**: Inline `<script is:inline>` in `<head>` reads localStorage before first paint
-- ThemeToggle syncs both `.dark` class AND `data-theme` attribute
-- CSS: `@custom-variant dark (&:where(.dark, .dark *))` in global.css enables Tailwind `dark:` variants
-- No-JS fallback: `@media (prefers-color-scheme: dark)` applies when `[data-theme]` isn't set yet
-- Three modes: Light / Dark / System (follows OS preference)
+### CSS Variable Naming Convention
+In `global.css`:
+- `@theme` tokens: `--foreground-color`, `--highlight-one`, `--btn-primary`, etc.
+- `:root`/`html.dark` source vars: `--color-foreground`, `--highlight-1`, `--raw-btn-primary`, etc.
+- Always use `text-[var(--foreground-color)]` syntax in Tailwind classes (NOT `var(--foreground-color)` alone)
 
-### Styling
-- Tailwind v4 via Vite plugin — `@theme` tokens in `global.css` (NO tailwind.config.js)
-- `cn()` utility in `src/libs/utils.ts` for conditional class merging (clsx + tailwind-merge)
-- CSS custom properties for UI controls: `--btn-primary`, `--btn-secondary`, `--btn-text-*`, `--shadow-soft`
-- Theme colors defined in `@theme`: `--color-primary`, `--color-background`, `--color-foreground`
-- Dark variants for UI vars auto-applied via `.dark { ... }` in global.css
-- **Rule**: Use Tailwind utilities (`bg-background`, `text-foreground`, `text-primary`) — NOT raw `var()` in class attributes
+### Hydration Directives
+- `client:only="react"` — Components that don't need SSR (ThemeToggle, LanguageSwitcher, Toaster)
+- `client:load` — Components that need immediate interactivity (SileoNotify)
+- No directive — Pure Astro components (static HTML, zero JS)
 
-### Configuration
-- **Client config**: `src/data/configProject.ts` — app name, SEO, socials, branding (uses `PUBLIC_SITE_URL` env var)
-- **Server config**: `src/env.d.ts` — typed env vars (API keys, secrets, DB URIs)
-- **Astro config**: `astro.config.mjs` — site URL (from `PUBLIC_SITE_URL`), integrations, Vite plugins
-- **IMPORTANT**: Set `PUBLIC_SITE_URL` in `.env` before deploying (affects sitemap + canonical URLs + OG images)
+## Key Files to Customize
+1. `src/data/configProject.ts` — App name, description, SEO metadata
+2. `src/data/Profile.ts` — Name, bio, social links
+3. `src/data/CV.ts` — Work experience and education
+4. `src/data/Proyectos.ts` — Portfolio projects
+5. `src/styles/global.css` — Colors, fonts, theme variables
+6. `src/assets/` — Logo, profile photo, project images
+7. `.env` (from `.env.example`) — API keys, analytics IDs
 
-## Coding Conventions
+## Common Patterns
 
-### File Naming
-- Astro components: `PascalCase.astro`
-- React components: `PascalCase.tsx`
-- Utilities/data: `camelCase.ts`
-- Pages: `lowercase.astro` (Astro routing convention)
+### Adding a New Page
+1. Create `src/pages/NewPage.astro`
+2. Import `Layout` and wrap content
+3. Read language cookie: `const lang = (Astro.cookies.get("lang")?.value as "es" | "en") || "es";`
+4. Add translations to `src/i18n/ui.ts`
 
-### Imports
-- Use `@/` path alias (maps to `src/`)
-- Import order: styles → data → components → types
+### Adding a New Project
+1. Add images to `src/assets/Projects/pN/`
+2. Add cover image to `src/assets/Portadas/`
+3. Add entry to `src/data/Proyectos.ts`
 
-### TypeScript
-- Strict mode (`astro/tsconfigs/strict`)
-- Define component props with `interface Props`
-- Astro components use `Astro.props` destructuring
+### Using CSS Variables in Tailwind
+```html
+<!-- Correct -->
+<h1 class="text-[var(--foreground-color)]">Title</h1>
+<div class="bg-[var(--highlight-one)]">Accent</div>
 
-### React Components
-- NO `"use client"` directive (Astro ignores it — use `client:*` on the component tag)
-- Keep components small — each hydrated island adds to JS bundle
-- Use `client:only="react"` for components that access `localStorage`, `document.cookie`, or other browser APIs during init
+<!-- WRONG - does nothing -->
+<h1 class="var(--foreground-color)">Title</h1>
+```
 
-### Environment Variables
-- `PUBLIC_*` prefix = available in client-side code
-- No prefix = server-side only (never exposed to browser)
-- Types defined in `src/env.d.ts`
-- Template values in `.env.example`
+## External Links
+Always include `rel="noopener noreferrer"` on `target="_blank"` links for security.
 
-### i18n
-- Translations in `src/i18n/ui.ts` (es/en dictionaries)
-- `useTranslations(lang)` returns a `t()` function for key lookups
-- Language persistence via cookie (`lang`) + localStorage (`pref-lang`)
-- LanguageContext.tsx provides React context for language state in islands
+## Analytics
+- Google Analytics + Microsoft Clarity loaded only after user cookie consent
+- Vercel Speed Insights loaded automatically
+- Partytown offloads analytics scripts to web workers
 
-## Security
-- Security headers via `src/middleware.ts`:
-  - `X-Content-Type-Options: nosniff`
-  - `X-Frame-Options: SAMEORIGIN`
-  - `Referrer-Policy: strict-origin-when-cross-origin`
-  - `Permissions-Policy: camera=(), microphone=(), geolocation=()`
-- For static deploys, replicate headers in platform config (Vercel `vercel.json`, Netlify `_headers`)
-- Analytics loaded ONLY after user consent (GDPR-compliant cookie banner)
-- Partytown offloads analytics scripts to web worker (off main thread)
-- Cookies: `SameSite=Lax` + conditional `Secure` flag (auto-detects HTTPS)
-- All secrets via server-side env vars (never `PUBLIC_*`)
-- No hardcoded secrets in source code
-
-## Performance Guidelines
-- Prefer `client:idle` over `client:load` for non-critical components
-- Use `client:only="react"` only when SSR would break (browser-API-dependent code)
-- Images: use Astro's `<Image>` component for automatic optimization (sharp installed)
-- Keep React islands small — each hydrated component adds to JS bundle
-- Analytics scripts run in Partytown web worker (zero main-thread impact)
-- `<audio preload="none">` — never preload media unless user interaction is imminent
-- Inline dark mode script prevents layout shift (FOUC) on page load
-
-## Utility Scripts (scripts/)
-Node.js helper scripts for asset optimization (run with `node scripts/<name>`):
-- `convert-images-to-webp.js` — Sharp-based image conversion
-- `convert-audio-to-webm.js` — FFmpeg audio conversion
-- `convert-video-to-webm.js` — FFmpeg video conversion
-- `normalize-names.js` — File name normalization
-
-## Deploy Checklist
-1. Set `PUBLIC_SITE_URL` in `.env` (e.g. `https://mysite.com`)
-2. Update `configProject.ts` — appName, appDescription, socials, support email
-3. Replace placeholder images in `public/images/`
-4. Replace `public/favicon.svg`
-5. For static hosting: add security headers via platform config
-6. Run `pnpm build` and verify no warnings
+## Scripts (in `/scripts/`)
+- `convert-images-to-webp.js` — Batch convert images to WebP
+- `convert-audio-to-webm.js` — Convert audio to WebM Opus (requires FFmpeg)
+- `convert-video-to-webm.js` — Convert video to WebM (requires FFmpeg)
+- `convert_pdf_to_jpg.js` — Convert PDF to JPG (requires Ghostscript)
+- `rename_files_from_x_to_numberSerie.js` — Rename files to sequential numbers
