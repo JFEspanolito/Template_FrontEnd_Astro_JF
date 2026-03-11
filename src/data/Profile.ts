@@ -6,16 +6,16 @@ export const profile = {
     title: "placeholder",
     headline: "placeholder",
     description: [
-      "placeholder",
-      "placeholder",
+      "placeholder 1",
+      "placeholder 2",
     ],
   },
   EN: {
     title: "placeholder",
     headline: "placeholder",
     description: [
-      "placeholder",
-      "placeholder",
+      "placeholder 1",
+      "placeholder 2",
     ],
   },
 

@@ -1,7 +1,7 @@
 ---
 import Layout from "@/layouts/Layout.astro";
 import { proyectos } from "@/data/Proyectos";
-import configProject from "@/data/configProject";
+import { configProject } from "@/data/configProject";
 import { Image } from "astro:assets";
 
 const { pageID } = Astro.params;
@@ -27,7 +27,7 @@ const imagenesProyecto = Object.entries(allImages)
   .map(([, img]) => img.default);
 ---
 
-<Layout title={`${configProject.shortName} - ${proyecto.nombre}`}>
+<Layout title={`${configProject.appName} - ${proyecto.nombre}`}>
   <section id="Proyectos" class="md:col-span-8 lg:col-span-9 animate-fade-in md:mr-20">
     {/* Header Values (Name, description, etc) */}
     <div class="max-w-4xl mb-16">

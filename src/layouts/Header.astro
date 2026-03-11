@@ -6,18 +6,59 @@ import { profile } from "@/data/Profile";
 import ThemeToggle from "@/components/buttons/ThemeToggle";
 import { LanguageSwitcher } from "@/components/buttons/LanguageSwitcher";
 
+type NavLink = {
+  label: string;
+  href: string;
+};
+
+type NavGroup = {
+  label: string;
+  href?: string;
+  children?: NavLink[];
+  childrens?: NavLink[];
+  submenu?: NavLink[];
+};
+
+type NavItem = NavLink | NavGroup;
+
 const pathname = new URL(Astro.request.url).pathname;
 const currentPath = pathname.slice(1);
 
-const isActive = (path: string) => {
-  if (path === "" && currentPath === "") return true;
-  if (path !== "" && currentPath.startsWith(path)) return true;
+const normalizePath = (href: string) => {
+  if (!href || href === "/" || href.startsWith("#")) return "";
+
+  return href.replace(/^\/+/, "").split("#")[0];
+};
+
+const isActive = (href: string) => {
+  const normalizedPath = normalizePath(href);
+
+  if (normalizedPath === "" && currentPath === "") return true;
+  if (normalizedPath !== "" && currentPath.startsWith(normalizedPath)) return true;
   return false;
+};
+
+const getChildren = (item: NavItem) => {
+  if ("childrens" in item && Array.isArray(item.childrens)) return item.childrens;
+  if ("children" in item && Array.isArray(item.children)) return item.children;
+  if ("submenu" in item && Array.isArray(item.submenu)) return item.submenu;
+  return [];
+};
+
+const hasChildren = (item: NavItem) => getChildren(item).length > 0 && !("href" in item && item.href);
+
+const isItemActive = (item: NavItem) => {
+  if (hasChildren(item)) {
+    return getChildren(item).some((child) => isActive(child.href));
+  }
+
+  return "href" in item && typeof item.href === "string" ? isActive(item.href) : false;
 };
 
 import { useTranslations } from "@/i18n/ui";
 const lang = (Astro.cookies.get("lang")?.value as "es" | "en") || "es";
 const t = useTranslations(lang);
+const navigation = Object.values(lang === "es" ? config.navigation.ES : config.navigation.EN) as NavItem[];
 ---
 
 <header class="w-full border-b border-[var(--border-dim-one)] bg-[var(--body-background)]/90 backdrop-blur-md sticky top-0 z-50">
@@ -26,7 +67,8 @@ const t = useTranslations(lang);
       <div class="flex items-center justify-center group-hover:opacity-80 transition-opacity duration-300">
         <a class="flex items-center gap-3 py-2 text-sm font-bold transition-all" href="/">
           <Image src={bbnLogo} alt="Logo" class="h-8 w-auto object-contain" />
-          <span class="font-display font-extrabold text-xl tracking-[0.1em] uppercase text-[var(--foreground-color)]">{config.appName}</span>
+          <span class="font-display font-extrabold text-xl tracking-[0.1em] uppercase text-[var(--foreground-color)]">{config.appName}</span
+          >
         </a>
       </div>
     </div>
@@ -43,8 +85,7 @@ const t = useTranslations(lang);
           class="text-xs font-bold uppercase tracking-widest text-[var(--foreground-highlight-one)] hover:text-[var(--foreground-color)] transition-all cursor-pointer flex items-center gap-2 group"
           data-email={profile.email}
         >
-          <span class="text-[var(--foreground-muted)] font-medium">
-      {t("contact.button")}</span>
+          <span class="text-[var(--foreground-muted)] font-medium"> {t("contact.button")}</span>
           <span id="email-label">{profile.email}</span>
         </button>
 
@@ -69,7 +110,10 @@ const t = useTranslations(lang);
     </nav>
 
     <!-- Mobile Menu Button -->
-    <button id="mobile-menu-open" class="md:hidden p-2 text-[var(--foreground-color)] hover:text-[var(--foreground-highlight-one)] transition-colors">
+    <button
+      id="mobile-menu-open"
+      class="md:hidden p-2 text-[var(--foreground-color)] hover:text-[var(--foreground-highlight-one)] transition-colors"
+    >
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-5 h-5">
         <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"></path>
       </svg>
@@ -89,7 +133,10 @@ const t = useTranslations(lang);
         <Image src={bbnLogo} alt="Logo" class="h-8 w-auto object-contain" />
         <span class="font-display font-bold text-lg text-[var(--foreground-color)]">{config.appName}</span>
       </div>
-      <button id="mobile-menu-close" class="p-2 text-[var(--foreground-color)] hover:text-[var(--foreground-highlight-one)] transition-colors">
+      <button
+        id="mobile-menu-close"
+        class="p-2 text-[var(--foreground-color)] hover:text-[var(--foreground-highlight-one)] transition-colors"
+      >
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-8 h-8">
           <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path>
         </svg>
@@ -99,18 +146,50 @@ const t = useTranslations(lang);
     <!-- Drawer Nav -->
     <nav class="flex flex-col p-8 space-y-4">
       <ThemeToggle client:only="react" />
-      <a
-        href="/"
-        class={`text-2xl font-display font-bold tracking-tight transition-all py-3 ${isActive("") ? "text-[var(--foreground-highlight-one)] pl-4 border-l-2 border-[var(--highlight-one)]" : "text-[var(--foreground-color)]/80 hover:text-[var(--foreground-color)]"}`}
-      >
-        {t("nav.menu1")}
-      </a>
-      <a
-        href="/CV"
-        class={`text-2xl font-display font-bold tracking-tight transition-all py-3 ${isActive("CV") ? "text-[var(--foreground-highlight-one)] pl-4 border-l-2 border-[var(--highlight-one)]" : "text-[var(--foreground-color)]/80 hover:text-[var(--foreground-color)]"}`}
-      >
-        {t("nav.menu2")}
-      </a>
+      <br />
+      <LanguageSwitcher client:only="react" />
+      <br />
+      {
+        navigation.map((item) => {
+          const itemActiveClass = isItemActive(item)
+            ? "text-[var(--foreground-highlight-one)] pl-4 border-l-2 border-[var(--highlight-one)]"
+            : "text-[var(--foreground-color)]/80 hover:text-[var(--foreground-color)] border-l-2 border-transparent";
+
+          if (hasChildren(item)) {
+            const children = getChildren(item);
+
+            return (
+              <details class="group" open={isItemActive(item)}>
+                <summary
+                  class={`flex items-center gap-3 py-3 text-2xl font-display font-bold tracking-tight transition-all cursor-pointer list-none [&::-webkit-details-marker]:hidden ${itemActiveClass}`}
+                >
+                  <span>{item.label}</span>
+                  <span class="ml-auto text-sm leading-none text-[var(--foreground-muted)] transition-transform duration-300 group-open:rotate-180">
+                    v
+                  </span>
+                </summary>
+
+                <div class="mt-2 ml-4 flex flex-col space-y-2 border-l border-white/10 pl-4">
+                  {children.map((child) => (
+                    <a
+                      class={`py-2 text-base font-bold nav-link transition-all ${isActive(child.href) ? "text-[var(--foreground-highlight-two)] border-l-2 border-[var(--highlight-two)] pl-4" : "text-[var(--foreground-muted)] hover:text-[var(--foreground-highlight-two)] border-l-2 border-transparent hover:border-[var(--highlight-two)]/40 pl-4"}`}
+                      href={child.href}
+                    >
+                      {child.label}
+                    </a>
+                  ))}
+                </div>
+              </details>
+            );
+          }
+
+          return (
+            <a href={item.href} class={`text-2xl font-display font-bold tracking-tight transition-all py-3 ${itemActiveClass}`}>
+              {item.label}
+            </a>
+          );
+        })
+      }
     </nav>
 
     <!-- Drawer Footer -->

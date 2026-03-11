@@ -69,14 +69,28 @@ export const configProject = {
   },
 
   // ======================================================
-  // Menú de navegación (labels y rutas)
+  // 🧭 NAVEGACION (labels y rutas i18n)
   // ======================================================
   navigation: {
     ES: {
-      home: { label: "Inicio", href: "#Resumen" },
+      home: { label: "Inicio", href: "/" },
+      services: {
+        label: "Servicios",
+        childrens: [
+          { label: "Submenu 1", href: "/CV" },
+          { label: "Submenu 2", href: "/404" },
+        ],
+      },
     },
     EN: {
-      home: { label: "Home", href: "#Resumen" },
+      home: { label: "Home", href: "/" },
+      services: {
+        label: "Services",
+        childrens: [
+          { label: "Submenu 1", href: "/CV" },
+          { label: "Submenu 2", href: "/404" },
+        ],
+      },
     },
   },
 };
