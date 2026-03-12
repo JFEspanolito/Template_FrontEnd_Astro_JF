@@ -77,6 +77,20 @@ export default function STLViewer({
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
 
+  // --- CLÁUSULA DE GUARDIA ---
+  if (!files || files.length === 0) {
+    return (
+      <div 
+        className={cn("flex flex-col items-center justify-center gap-2 border-2 border-dashed border-[var(--border-dim-one)] rounded-2xl bg-[var(--card-background)] opacity-60", className)}
+        style={{ height }}
+      >
+        <span className="font-display font-bold text-xs uppercase tracking-widest text-[var(--foreground-muted)]">
+          System Alert: No STL assets detected in hangar
+        </span>
+      </div>
+    );
+  }
+
   // ── Lógica de Control (Reparada para OrbitControls) ──
   const zoom = useCallback((factor: number) => {
     const camera = cameraRef.current;
