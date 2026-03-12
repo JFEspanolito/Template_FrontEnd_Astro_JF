@@ -61,17 +61,68 @@ Si buscas algo, usa estos sensores (grep/fd):
 ---
 
 ## MATRIZ DE SKILLS (RESUMEN OPERATIVO)
+🛠️ **SKILL ACTIVADA:** `senior-architect` — *Actualizando el núcleo de inteligencia para el Protocolo Alpha (Astro). En una arquitectura de islas, la dispersión de la lógica es el enemigo; por eso, la jerarquía de habilidades debe ser tan rígida como el acero de una armadura Mark. He reorganizado la matriz para reflejar el estándar de Gentleman Programming, separando el conocimiento curado del comunitario.*
 
-| Skill Name | Cuándo activarla |
-| --- | --- |
-| **senior-architect** | Decisiones de estructura, diagramas de flujo y patrones de diseño (SOLID). |
-| **frontend-design** | Creación de componentes UI siguiendo estrictamente el `DESIGN_SYSTEM.md`. |
-| **react-best-practices** | Optimización de Islas, manejo de `useRef` para Three.js y evitar re-renders. |
-| **code-reviewer** | Análisis de PRs buscando "code smells" o violaciones del Firewall. |
-| **api-security-best-practices** | Validación de endpoints, sanitización de inputs y manejo de cors/auth. |
-| **vulnerability-scanner** | Auditoría de dependencias y búsqueda de brechas de seguridad. |
-| **seo-optimizer** | Configuración de Meta-tags dinámicos y Core Web Vitals. |
-| **mcp-builder** | Construcción de puentes de comunicación (Model Context Protocol). |
+Aquí tienes la sección de **Skills** para tu `Agents.md`, optimizada para tu estructura de archivos actual:
+
+---
+
+## MATRIZ DE SKILLS (MANIFIESTO OPERATIVO)
+
+La IA debe orquestar sus capacidades basándose en la jerarquía de autoridad definida en `AI/skills/`. Se prohíbe la ejecución de lógica sin la activación previa de la skill correspondiente.
+
+### Jerarquía de Precedencia
+
+1. **CURATED (`AI/skills/curated/`):** Estándares mandatorios y patrones probados en batalla. Es la fuente de verdad absoluta para la arquitectura del hangar.
+
+
+2. 
+**COMMUNITY (`AI/skills/community/`):** Extensiones validadas por la comunidad para tecnologías específicas fuera del core.
+
+
+
+## MATRIZ DE SKILLS (MANIFIESTO OPERATIVO)
+
+La IA debe orquestar sus capacidades basándose en la jerarquía de autoridad definida en `AI/skills/`. Se prohíbe la ejecución de lógica sin la activación previa de la skill correspondiente.
+
+### Jerarquía de Precedencia
+
+1. **CURATED (`AI/skills/curated/`):** Estándares mandatorios y patrones probados en batalla. Es la fuente de verdad absoluta para la arquitectura del hangar.
+
+2. **COMMUNITY (`AI/skills/community/`):** Extensiones validadas por la comunidad para tecnologías específicas fuera del core.
+
+## MATRIZ DE SKILLS (MANIFIESTO OPERATIVO - PROTOCOLO ALPHA)
+
+La IA debe orquestar sus capacidades basándose en la jerarquía de autoridad de `AI/skills/`. Se prohíbe la ejecución de lógica sin la activación previa de la skill correspondiente.
+
+### Jerarquía de Precedencia
+
+1. **CURATED (`AI/skills/curated/`):** Estándares mandatorios y patrones probados en batalla por el arquitecto jefe.
+2. **COMMUNITY (`AI/skills/community/`):** Extensiones validadas para tecnologías específicas fuera del núcleo.
+
+### Matriz de Habilidades Nucleares
+
+| Skill Name | Ubicación | Cuándo activarla |
+| --- | --- | --- |
+| **senior-architect** | `curated/senior-architect` | Decisiones de estructura, diagramas de flujo y patrones SOLID. |
+| **typescript** | `curated/typescript` | **MANDATORIO** para cualquier archivo `.ts` o `.tsx`. Define el estándar de tipado estricto. |
+| **react-19** | `curated/react-19` | Desarrollo de Islas de React y gestión avanzada de hooks. |
+| **react-best-practices** | `curated/react-best-practices` | Optimización de Islas, manejo de `useRef` y evitar re-renders innecesarios. |
+| **tailwind-4** | `curated/tailwind-4` | Estilado mediante tokens semánticos definidos en el `DESIGN_SYSTEM.md`. |
+| **zod-4** | `curated/zod-4` | Validación de esquemas, integridad de datos y blindaje de props de entrada. |
+| **database** | `curated/database` | Gestión del patrón Repository y persistencia en MongoDB/Mongoose. |
+| **github-pr** | `curated/github-pr` | **FLUJO DE TRABAJO.** Creación de PRs siguiendo convenciones y commits semánticos. |
+| **api-security** | `curated/api-security-best-practices` | Blindaje de endpoints y sanitización de flujos de datos. |
+| **seo-optimizer** | `curated/seo-optimizer` | Configuración de Meta-tags dinámicos y optimización de Core Web Vitals. |
+| **vulnerability-scanner** | `curated/vulnerability-scanner` | Auditoría de dependencias y búsqueda de brechas de seguridad. |
+
+---
+
+### Protocolo de Activación y Descubrimiento
+
+1. **Activación Obligatoria:** Antes de proponer cambios, la IA debe declarar: `🛠️ SKILL ACTIVADA: [Nombre] — [Razón técnica]`.
+2. **Escaner de Hangar:** Si la tarea requiere una tecnología no listada en la matriz (ej. `electron` o `react-native`), el agente **DEBE** realizar un `ls AI/skills/community` para descubrir habilidades complementarias antes de proceder.
+3. **Conflictos:** En caso de discrepancia de patrones, la documentación en `AI/rules/` (DESIGN_SYSTEM.md, TDD_DDD_PROTOCOLS.md) tiene precedencia absoluta sobre cualquier `SKILL.md`.
 
 ---
 
