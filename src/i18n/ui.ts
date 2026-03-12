@@ -7,22 +7,24 @@ export const defaultLang = "es";
 
 export const ui = {
   es: {
-    "nav.menu1": "Menú Español",
-    "nav.menu2": "Menú 2",
-    "nav.menu3": "Menú 3",
-    "nav.logIn": "Ingresar",
-    "footer.sendMail": "Escríbenos a",
-    "footer.copyright": "Todos los derechos reservados.",
-    "auth.signIn": "Iniciar Sesión",
+    "nav.menu1": "Inicio",
+    "nav.menu2": "CV",
+    "contact.button": "Contacto",
+    "cv.workExperience": "Experiencia Laboral",
+    "cv.education": "Educación",
+    "project.Back": "Volver a proyectos",
+    "project.Visit": "Visitar sitio del proyecto",
+    "home.Projects": "Proyectos"
   },
   en: {
-    "nav.menu1": "English Menu",
-    "nav.menu2": "Menu 2",
-    "nav.menu3": "Menu 3",
-    "nav.logIn": "Log In",
-    "footer.sendMail": "Send us an email at",
-    "footer.copyright": "All rights reserved.",
-    "auth.signIn": "Sign in",
+    "nav.menu1": "Home",
+    "nav.menu2": "CV",
+    "contact.button": "Contact",
+    "cv.workExperience": "Work Experience",
+    "cv.education": "Education",
+    "project.Back": "Back to projects",
+    "project.Visit": "Visit Project Website",
+    "home.Projects": "Projects"
   },
 } as const;
 

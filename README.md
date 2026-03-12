@@ -1,206 +1,117 @@
-# Template_FrontEnd_Astro_JF
+# Portfolio BoilerPlate (Protocolo Alpha)
 
-Template minimal basado en Astro 5.x y React 19.x.
-Migra la robustez de una arquitectura empresarial de Next.js hacia la agilidad de las Islas de Astro, manteniendo separación clara de lógica de negocio mediante DDD (Domain-Driven Design).
+Template de grado industrial basado en **Astro 5.x** y **React 19.x**. Diseñado para portafolios técnicos que exigen una separación estricta entre la lógica de negocio (DDD) y la capa de presentación, optimizando el tiempo de carga mediante hidratación selectiva.
 
-### ⚙️ Stack
+## 0. AI Governance & Protocols
 
-| Área          | Tecnología                       |
-| ------------- | -------------------------------- |
-| Framework     | Astro 5.x (SSG / SSR)            |
-| UI Runtime    | React 19.x (Islas)               |
-| Estilos       | Tailwind CSS 4.x + DaisyUI       |
-| Arquitectura  | DDD (Core / Hexagonal)           |
-| Analíticas    | GA / Clarity + Partytown         |
-| UX / UI Utils | Framer Motion, Lucide, Hot Toast |
+Este repositorio no es solo código; es un entorno dirigido. La carpeta `AI/` contiene el cerebro del proyecto:
+
+* **ARCHITECTURE_BLUEPRINT.md**: Define la ley sobre el uso de Islas, SSR y la política de Zero-JS por defecto.
+* **SECURITY_FIREWALL.md**: Protocolos de defensa contra fugas de secretos y validación de inyecciones.
+* **DESIGN_SYSTEM.md**: Firewall visual que prohíbe el uso de valores crudos (Hex/RGBA), forzando el uso de tokens semánticos en Tailwind 4.
+* **Agents.md**: Manual de operaciones para que cualquier agente de IA (Claude, GPT, Gemini) entienda sus límites y capacidades dentro del hangar.
 
 ---
 
-### 🚀 Estructura del Proyecto
+### 1. Clonación e Instalación
+
+```bash
+git clone https://github.com/JFEspanolito/Template_FrontEnd_Astro_JF.git
+cd Template_FrontEnd_Astro_JF
+pnpm install
 
 ```
-/
-├── src/
-│   ├── components/
-│   │   ├── analytics/      # Isla de React para GA/Clarity
-│   │   ├── buttons/        # Componentes atómicos (ButtonBasic.astro)
-│   │   ├── layout/         # Header y Footer globales
-│   │   └── ui/             # Componentes de UI complejos
-│   ├── data/               # Configuración estática (configProject.ts)
-│   ├── env.d.ts            # Tipos para import.meta.env
-│   ├── i18n/               # Diccionarios multiidioma
-│   ├── layouts/            # Plantilla maestra (Layout.astro)
-│   ├── libs/               # Utilidades (cn, client-side utils)
-│   ├── pages/              # Enrutado por archivos
-│   └── styles/             # CSS global (Tailwind 4 @theme)
-├── public/                 # Assets estáticos
-├── astro.config.mjs        # Integraciones (Vite + React)
-└── tsconfig.json           # TypeScript estricto
-```
 
-### 🧞 Comandos
+### 2. Configuración de Infraestructura
 
-Todos desde la raíz usando pnpm:
+Copia el manifiesto de variables de entorno y configura tus sensores:
 
-| Comando           | Acción                                  |
-| ----------------- | --------------------------------------- |
-| `pnpm install`    | Instala dependencias                    |
-| `pnpm dev`        | Servidor de desarrollo (localhost:4321) |
-| `pnpm build`      | Build de producción en `./dist/`        |
-| `pnpm preview`    | Previsualiza el build                   |
-| `pnpm astro sync` | Regenera tipos de Astro                 |
-
-Si deseas utilizar
+```bash
+cp env.example .env.local
 
 ```
-pnpm add -D vitest
+
+---
+
+## 2. Stack Tecnológico
+
+| Área | Tecnología |
+| --- | --- |
+| **Framework** | Astro 5.x (SSG / SSR selectivo) |
+| **UI Runtime** | React 19.x (Hydration Islands) |
+| **Estado Global** | Nano Stores (Agnóstico al framework) |
+| **Estilos** | Tailwind CSS 4.x + DaisyUI 5.x |
+| **Arquitectura** | DDD (Core / Hexagonal Layers) |
+| **Testing** | Vitest (Protocolo TDD Obligatorio) |
+
+---
+
+## 3. Estructura del Hangar (Tree Map)
+
+```text
+src/
+ ├─ app/                  # Orquestación de rutas y lógica de servidor
+ ├─ components/
+ │   ├─ analytics/        # Componentes de telemetría (Partytown)
+ │   ├─ ui/               # Islas de React (Modal, STLViewer)
+ │   └─ shared/           # Componentes atómicos .astro
+ ├─ core/                 # Lógica de negocio (Independiente del framework)
+ ├─ store/                # Estados compartidos vía Nano Stores
+ ├─ i18n/                 # Diccionarios y lógica de lenguaje
+ ├─ data/                 # Configuración de proyecto y CV
+ └─ styles/               # CSS global y @theme tokens
+AI/                       # Reglas de gobernanza y habilidades
+ ├─ rules/                # Protocolos DDD, TDD y Design System
+ ├─ skills/               # Habilidades especializadas para agentes
+ └─ specs/                # FEATURES_INDEX.md
+
 ```
 
-Recuerda que debes configurar package.json
+---
 
-```
-"scripts": {
-  "test": "vitest"
-}
-```
+## 4. Gestión de Estado: Nano Stores
 
-### 🧠 Arquitectura CORE (DDD)
+En Astro, el uso de Context API de React es un antipatrón que rompe la comunicación entre islas de diferentes frameworks. Este proyecto utiliza **Nano Stores** para la comunicación entre componentes:
 
-Separación estricta de responsabilidades:
+* `$langStore`: Control de internacionalización persistente.
+* `$themeStore`: Sincronización de modo oscuro/claro.
+* `$modalStore`: Sistema centralizado de diálogos de sistema.
 
-- **Domain**: Entidades y contratos (sin dependencias externas).
-- **Application**: Casos de uso (lógica pura).
-- **Infrastructure**: Persistencia (MongoDB) y servicios externos (Stripe, APIs).
+---
 
-### 🧩 Variables de Entorno
+## 5. Herramientas de Mantenimiento
 
-- Las variables accesibles desde cliente deben usar prefijo `PUBLIC_`.
-- Copiar `.env.example` a `.env.local`.
-- Acceso vía `import.meta.env.PUBLIC_VARIABLE_NAME`.
-- `src/env.d.ts` garantiza tipado y autocompletado.
+El sistema incluye scripts en `/scripts` para la optimización automática de activos:
 
-### 🛠️ Scripts útiles
-
-Generar árbol de directorios (Windows):
-
+- `convert-images-to-webp.js`: Migración de activos visuales (.png, .jpg, .jpeg, .svg) a formatos de próxima generación (.webp) utilizando la librería sharp para reducir el peso sin perder fidelidad.
+- `convert-video-to-webm.js`: Compresión de medios de video (.mp4, .mov, .avi, etc.) a formato .webm (codecs VP9/AV1) para optimización de métricas de carga como el LCP, gestionado mediante FFmpeg.
+- `convert-audio-to-webm.js`: Conversión de archivos de audio (.mp3, .wav, .m4a, etc.) a .webm con codec Opus, garantizando alta fidelidad con el mínimo bitrate posible.
+- `convert_pdf_to_jpg.js`: Generación de vistas previas de documentos mediante la conversión de la primera página de archivos PDF a imagen JPG, utilizando ImageMagick y Ghostscript.
+- `normalize-names.js`: Estandarización de nomenclaturas en el sistema de archivos (eliminación de acentos, conversión a minúsculas y sustitución de caracteres especiales por guiones bajos) para garantizar compatibilidad total en despliegues.
+- `rename_files_from_x_to_numberSerie.js`: Indexación y renombrado masivo de archivos en secuencias numéricas (ej. 00, 01, 02), ideal para la gestión sistemática de activos repetitivos.
+- Generar árbol de directorios (Windows):
 ```
 winget install GerdHoffmann.Tree
 & "C:\Program Files (x86)\GnuWin32\bin\tree.exe" -I 'node_modules|.next|dist|build|.astro|.next|.vscode|.agent' > tree.txt
 ```
 
-Scripts de mantenimiento ubicados en la carpeta `scripts/`.
+---
 
-### 1. `convert_pdf_to_jpg.js`
+## 6. Configuración de VSCode
 
-Convierte la primera página de un PDF a imagen JPG.
+Para mantener la higiene visual, utiliza el siguiente patrón de **File Nesting**:
 
-**Requisitos:**
-
-1.  **Ghostscript:**
-    - Descarga: [Ghostscript Releases](https://github.com/ArtifexSoftware/ghostpdl-downloads/releases)
-    - Busca el instalador (ej: `gs10060w64.exe`).
-    - ⚠️ **Importante:** Marca la casilla "Add to PATH" durante la instalación.
-    - Verificar versión: `gswin64c -version`
-
-**Uso:**
-
-```
-node scripts/convert_pdf_to_jpg.js
-```
-
-### 2. `convert-images-to-webp.js`
-
-Convierte imágenes `.png`, `.jpg`, `.jpeg` y `.svg` a formato moderno `.webp` en las mismas ubicaciones. Conserva los originales.
-
-**Dependencias:**
-
-```
-npm i sharp glob
-```
-
-**Uso:**
-
-```
-node scripts/convert-images-to-webp.js
-```
-
-### 3. `convert-audio-to-webm.js`
-
-Convierte archivos de audio (`.mp3`, `.wav`, `.m4a`, `.aac`, `.ogg`) a `.webm` (codec Opus). Conserva los originales.
-
-**Requisitos:**
-
-- **FFmpeg:** Debe estar instalado y agregado a las variables de entorno (PATH).
-- (Opcional) `npm i glob`
-- **Uso:**
-
-```
-node scripts/convert-audio-to-webm.js
-```
-
-### 4. `normalize-names.js`
-
-Normaliza nombres de archivos y carpetas (elimina acentos, espacios por guiones bajos, pasa a minúsculas).
-
-**Flujo de trabajo recomendado:**
-
-- Navega a la carpeta que quieres normalizar.
-- Ejecuta el script apuntando a su ubicación.
-
-**Uso:**
-
-```
-# 1. Ir a la carpeta objetivo
-cd "ruta/a/tu/carpeta/public/certificates"
-
-# 2. Ejecutar script (ajusta la ruta según donde estés)
-node "../../scripts/normalize-names.js" -r
-```
-
-**Modo prueba (Simulacro - No cambia nada, solo muestra logs):**
-
-```
-node "../../scripts/normalize-names.js" --dry
-```
-
-### 💻 Comandos para npm
-
-Ejecuta este comando para limpiar y recuperar espacio en tu disco.
-
-```
-npx npkill
-```
-
-React Doctor es una herramienta que escanéa tu código para buscar antipatrones. Busca cosas como:
-
-- useEffects innecesarios.
-- Arregla bugs de accesibilidad.
-- Investiga Prop Drilling, recomienda contexto o composición.
-
-```
-npx -y react-doctor@late
-```
-
-### 💻 VSCode recomendado
-
-Configuración sugerida para ocultar ruido visual y mejorar la legibilidad.
-VSCode Setting JSon
-
-```
-AppData\Roaming\Code\User\settings.json
-```
-
-File Nesting & Exclusions:
-
-```
-    "explorer.fileNesting.enabled": true,
+```json
+{
+  "explorer.fileNesting.enabled": true,
   "explorer.fileNesting.patterns": {
-    "package.json": ",.eslintrc.json, next.config.js, package-lock.json, postcss.config.js, tailwind.config.ts, jsconfig.json, next-sitemap.config.js, tailwind.config.js,vercel.json,pnpm-lock.yaml,yarn.lock,tsconfig.json,postcss.config.mjs,next.config.ts,next-env.d.ts,eslint.config.mjs,.stylelintrc.json,config.ts,next-auth.d.ts,.dockerignore,Dockerfile,vite.config.ts,pnpm-workspace.yaml,astro.config.mjs,tailwind.config.mjs,bun.lock,middleware.ts",
-    "README.md": "tree.txt,llms.txt, AI_ARCHITECTURE.md, .cursorrules, .llmignore,.gitignore,.env.example,.env.local,.env*,config.js,configApi.js,config.ts,configApi.ts,llms.md,CLAUDE.md,AGENTS.md,TOOLS.md,.llmrules,spec.md,designGuidelines.md",
+    "package.json": ",.eslintrc.json, next.config.js, package-lock.json, postcss.config.js, tailwind.config.ts, jsconfig.json, next-sitemap.config.js, tailwind.config.js,vercel.json,pnpm-lock.yaml,yarn.lock,tsconfig.json,postcss.config.mjs,next.config.ts,next-env.d.ts,eslint.config.mjs,.stylelintrc.json,config.ts,next-auth.d.ts,.dockerignore,Dockerfile,vite.config.ts,pnpm-workspace.yaml,astro.config.mjs,tailwind.config.mjs,bun.lock,middleware.ts,tsconfig.tsbuildinfo,opencode.json",
+    "README.md": "tree.txt,llms.txt, AI_ARCHITECTURE.md, .cursorrules, .llmignore,.gitignore,.env.example,.env.local,.env*,config.js,configApi.js,config.ts,configApi.ts,llms.md,CLAUDE.md,AGENTS.md,TOOLS.md,.llmrules,spec.md,designGuidelines.md"
   },
   "files.exclude": {
     ".astro": true,
     ".next": true,
+    ".vercel": true,
     ".vscode": true,
     "**/.agent": true,
     "**/.claude": true,
@@ -211,54 +122,16 @@ File Nesting & Exclusions:
     "dist": true,
     "node_modules": true
   },
-  "explorer.compactFolders": true,
-  "explorer.confirmDragAndDrop": true,
-```
-
-Colores de interfaz (High Contrast Selection):
+  "explorer.compactFolders": true
+}
 
 ```
-"workbench.colorCustomizations": {
-    //Selector Color
-    "editor.selectionBackground": "#ffd54f80",
-    "editor.selectionForeground": "#000000",
-    "editor.inactiveSelectionBackground": "#ffecb340",
 
-    "editor.selectionHighlightBackground": "#00000000",
-    "editor.wordHighlightBackground": "#00000000",
-    "editor.wordHighlightStrongBackground": "#00000000",
+---
 
-    // Apagar barras amarillas de resultados de búsqueda
-    "editor.rangeHighlightBackground": "#00000000",
+## 🎯 Protocolo de Ejecución
 
-    // Colores personalizados para búsqueda (amarillo transparente)
-    "editor.findMatchBackground": "#ffeb3b99",
-    "editor.findMatchHighlightBackground": "#ffeb3b55",
-    "editor.findRangeHighlightBackground": "#ffeb3b33",
-    "editor.findMatchBorder": "#ffeb3b",
-    "editor.findMatchHighlightBorder": "#ffeb3b"
-},
-```
-
-### 💻 Claude Skills
-
-Skills recomendadas para Claude.
-
-```
-npx claude-code-templates@latest --skill=analytics/google-analytics --yes
-npx claude-code-templates@latest --skill=business-marketing/seo-optimizer --yes
-npx claude-code-templates@latest --skill=creative-design/frontend-design --yes
-npx claude-code-templates@latest --skill=creative-design/ui-design-system --yes
-npx claude-code-templates@latest --skill=creative-design/web-design-guidelines --yes
-npx claude-code-templates@latest --skill=development/senior-frontend --yes
-npx claude-code-templates@latest --skill=development/senior-frontend --yes
-npx claude-code-templates@latest --skill=development/senior-architect --yes
-npx claude-code-templates@latest --skill=development/code-reviewer --yes
-npx claude-code-templates@latest --skill=railway/database --yes
-npx claude-code-templates@latest --skill=security/api-security-best-practices --yes
-npx claude-code-templates@latest --skill=security/vulnerability-scanner --yes
-npx claude-code-templates@latest --skill=security/top-web-vulnerabilities --yes
-npx claude-code-templates@latest --skill=security/html-injection-testing --yes
-npx claude-code-templates@latest --skill=sentry/find-bugs --yes
-npx claude-code-templates@latest --skill=sentry/find-bugs --yes
-```
+1. **Fase de Instalación**: `pnpm install`
+2. **Fase de Configuración**: Copiar `env.example` a `.env.local` y configurar los sensores `PUBLIC_*`.
+3. **Fase de Desarrollo**: `pnpm dev` (Localhost:4321).
+4. **Fase de Verificación**: `pnpm test` antes de cualquier commit.

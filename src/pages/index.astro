@@ -1,50 +1,97 @@
 ---
-import Layout from "../layouts/Layout.astro";
+// Importando Datos
+import { configProject as config } from "@/data/configProject";
+
+// Importando Componentes
+import Layout from "@/layouts/Layout.astro";
+import { proyectos } from "@/data/Proyectos";
 import ButtonBasic from "@/components/buttons/ButtonBasic.astro";
+import { SileoNotify } from "@/components/buttons/SileoNotify";
+import STLViewer, { type STLFile } from "@/components/ui/STLViewer";
+
+// Importando Context
+import { useTranslations } from "@/i18n/ui";
+
+const stlModules = import.meta.glob("/src/assets/STLS/*.stl", {
+  eager: true,
+  query: "?url",
+  import: "default",
+});
+const files: STLFile[] = Object.entries(stlModules).map(([filePath, url]) => ({
+  name: filePath.split("/").pop()!.replace(".stl", ""),
+  path: url as string,
+}));
+
+const lang = (Astro.cookies.get("lang")?.value as "es" | "en") || "es";
+const t = useTranslations(lang);
 ---
 
-<Layout title="Home Page">
-  <div class="relative flex items-center justify-center font-sans bg-background text-foreground">
-    <div class="w-full max-w-3xl mx-auto px-8 py-24">
-      Hola!
+<Layout title={`${config.tabname} - Visual Dev Portfolio`}>
+  <section id="Home" class="md:col-span-8 lg:col-span-9">
+    <ButtonBasic id="mi-boton-alerta" title="Entrar" typeButton={1} size={1} />
 
-      <ButtonBasic id="mi-boton-alerta" title="Entrar" typeButton={1} size={1} />
+    <SileoNotify
+      client:load
+      propType="success"
+      propBackGround="#000000"
+      propTextColor="#FFFFFF"
+      buttonClic={{
+        title: "Correo",
+        url: "correo@mail.com",
+      }}
+      propDesc="Send me a mail or use other social media"
+      propTitle="Prueba"
+    />
 
-      <!-- <CtaButton
-    client:load
-    audioSrc={heyListenAudio}
-    propType="success"
-    propFill="var(--color-card-bg )"
-    buttonClic={{
-      title: lang === "en" ? "Email" : "Correo",
-      url: aboutData.contact.find((c) => c.name === "Email")?.url,
-    }}
-    propDesc={lang === "en" ? "Send me a mail or use other social media" : "Envíame un correo o usa otra red social"}
-    propTitle={profileInfo.callToAction}
-  /> -->
+    <div class="flex flex-col sm:flex-row sm:items-end justify-between mb-10 gap-6 border-b border-[var(--border-dim-one)] pb-6">
+      <h1 class="font-display font-bold text-4xl md:text-5xl editorial-title text-[var(--foreground-color)]">{t("home.Projects")}</h1>
     </div>
-  </div>
 
-  <script is:inline>
-    function bindAlertButton() {
-      const btn = document.getElementById("mi-boton-alerta");
-
-      if (!(btn instanceof HTMLButtonElement) || btn.dataset.alertBound === "true") {
-        return;
+    <div class="space-y-8">
+      {
+        proyectos.map((proyecto, index) => (
+          <a
+            class="group block relative project-card-h w-full overflow-hidden bg-[var(--card-background)] border border-[var(--border-dim-one)] hover:border-[var(--highlight-one)] transition-all duration-500 neon-glow"
+            href={`/projects/${proyecto.pageID}`}
+          >
+            <div class="absolute inset-0">
+              {proyecto.imgbanner && (
+                <div
+                  class="w-full h-full bg-cover bg-no-repeat bg-center opacity-60 group-hover:opacity-40 group-hover:scale-105 transition-all duration-700 ease-out grayscale group-hover:grayscale-0"
+                  style={`background-image: url('${proyecto.imgbanner?.src ?? ""}'); ${proyecto.imgBgPos ?? "background-position: 50% 130%;"}`}
+                />
+              )}
+            </div>
+            <div class="absolute inset-0 bg-gradient-to-r from-black/90 via-black/40 to-transparent" />
+            <div class="absolute inset-0 px-8 flex flex-row items-center justify-between">
+              <div class="z-10 flex flex-col justify-center h-full">
+                <p class="text-[var(--foreground-highlight-one)] font-mono text-xs tracking-widest mb-1 opacity-0 group-hover:opacity-100 transform -translate-x-2 group-hover:translate-x-0 transition-all duration-300">
+                  {String(index + 1).padStart(2, "0")} //
+                </p>
+                <h3 class="font-display font-bold text-3xl md:text-4xl text-white editorial-title tracking-tight group-hover:text-[var(--foreground-highlight-two)] transition-colors duration-300">
+                  {proyecto.nombre}
+                </h3>
+                <p class="text-[var(--foreground-muted)] font-light text-xs tracking-[0.15em] uppercase mt-1">
+                  {lang === "es" ? proyecto.ES.title : proyecto.EN.title}
+                </p>
+              </div>
+            </div>
+          </a>
+        ))
       }
-
-      btn.dataset.alertBound = "true";
-      btn.addEventListener("click", () => {
-        alert("¡Funciona sin React y carga volando! 🚀");
-      });
-    }
-
-    if (document.readyState === "loading") {
-      document.addEventListener("DOMContentLoaded", bindAlertButton, { once: true });
-    } else {
-      bindAlertButton();
-    }
-
-    document.addEventListener("astro:page-load", bindAlertButton);
-  </script>
+    </div>
+    <br /><br /><br />
+    <div class="space-y-8">
+      <STLViewer client:only="react" files={files} height={500} modelColor="var(--highlight-two)" menuColor="var(--highlight-two)" />
+    </div>
+  </section>
 </Layout>
+
+<script>
+  const btn = document.getElementById("mi-boton-alerta");
+  if (btn) {
+    btn.addEventListener("click", () => {
+      alert("Funciona sin React y carga volando!");
+    });
+  }
+</script>

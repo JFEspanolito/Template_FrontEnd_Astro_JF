@@ -17,7 +17,7 @@ const baseStyles =
   "transition-all duration-300 flex items-center justify-center cursor-pointer disabled:opacity-50 disabled:pointer-events-none font-medium";
 
 const typeStyles = {
-  1: "bg-primary text-white hover:opacity-90 border border-transparent shadow-sm",
+  1: "bg-primary text-[var(--foreground-color)] hover:opacity-90 border border-transparent shadow-sm",
   2: "bg-background text-primary border border-primary hover:bg-gray-50",
   3: "bg-transparent text-gray-600 hover:text-primary hover:bg-gray-100/50",
 };
@@ -40,9 +40,6 @@ const sizeStyles = {
   class={cn(baseStyles, typeStyles[typeButton], shapeStyles[shape], sizeStyles[size], className)}
   {...props}
 >
-  {/* Slot para el Icono */}
   <slot name="icon" />
-
-  {/* Texto con margen inteligente si hay icono y es rectangular */}
   {title ? <span class:list={[{ "ml-2": Astro.slots.has("icon") && shape === 2 }]}>{title}</span> : <slot />}
 </button>

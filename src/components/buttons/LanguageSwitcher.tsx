@@ -1,42 +1,50 @@
-import React, { useState } from "react";
+"use client";
+import { useStore } from "@nanostores/react";
+import { $lang, type Lang } from "@/store/langStore";
 
 export function LanguageSwitcher() {
-  const [currentLang] = useState(() => {
-    if (typeof window === "undefined") return "es";
-    const match = document.cookie.match(/(?:^|;\s*)lang=([^;]*)/);
-    return (match?.[1] || "es") as "es" | "en";
-  });
+  const lang = useStore($lang);
 
-  const changeLanguage = (lang: "es" | "en") => {
-    document.cookie = `lang=${lang}; path=/; max-age=31536000; samesite=lax${location.protocol === 'https:' ? '; secure' : ''}`;
+  const changeLanguage = (newLang: Lang) => {
+    if (newLang === lang) return;
+    
+    // 1. Persistencia en Cookie (1 año)
+    document.cookie = `lang=${newLang}; path=/; max-age=31536000; SameSite=Lax`;
+    
+    // 2. Actualizamos la Store
+    $lang.set(newLang);
+    
+    // 3. Hard reload necesario en Astro para que el servidor re-renderice el contenido i18n
     window.location.reload();
   };
 
-  const btnStyle = (lang: string): React.CSSProperties => ({
-    display: "inline-flex",
-    alignItems: "center",
-    justifyContent: "center",
-    padding: "0.5rem 0.625rem",
-    borderRadius: "0.375rem",
-    fontSize: "0.75rem",
-    fontWeight: 700,
-    letterSpacing: "0.05em",
-    transition: "background-color 0.15s ease, color 0.15s ease",
-    border: "1px solid transparent",
-    backgroundColor: currentLang === lang ? "var(--btn-primary)" : "transparent",
-    color: currentLang === lang ? "var(--btn-text-primary)" : "var(--btn-text-secondary)",
-    boxShadow: currentLang === lang ? "var(--shadow-soft)" : "none",
-    cursor: "pointer",
-  });
+  const languages = [
+    { value: "es", label: "ES" },
+    { value: "en", label: "EN" }
+  ] as const;
 
   return (
-    <div style={{ display: "flex", gap: "0.25rem", alignItems: "center", padding: "0.25rem", borderRadius: "0.5rem", backgroundColor: "var(--btn-secondary)" }}>
-      <button onClick={() => changeLanguage("es")} style={btnStyle("es")} aria-label="Español">
-        ES
-      </button>
-      <button onClick={() => changeLanguage("en")} style={btnStyle("en")} aria-label="English">
-        EN
-      </button>
+    <div className="flex gap-1 p-1 rounded-lg bg-[var(--btn-secondary)]">
+      {languages.map(({ value, label }) => {
+        const isActive = lang === value;
+        return (
+          <button
+            key={value}
+            onClick={() => changeLanguage(value)}
+            className={`
+              inline-flex items-center justify-center 
+              px-3 py-2 rounded-md text-xs font-bold tracking-widest transition-all
+              ${isActive 
+                ? "bg-[var(--btn-primary)] text-[var(--btn-text-primary)] shadow-soft" 
+                : "text-[var(--btn-text-secondary)] hover:bg-[var(--border-dim)]"
+              }
+            `}
+            aria-label={`Cambiar a ${label}`}
+          >
+            {label}
+          </button>
+        );
+      })}
     </div>
   );
 }

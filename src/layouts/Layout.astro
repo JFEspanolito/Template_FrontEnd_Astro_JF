@@ -1,100 +1,64 @@
 ---
 // Importando Estilos
 import "@/styles/global.css";
+import { Toaster } from "sileo";
+import VerticalMenu from "./VerticalMenu.astro";
 
 // Importando Datos
-import config from "@/data/configProject";
+import { configProject as config } from "@/data/configProject";
 
 // Importando Componentes
 import Header from "@/layouts/Header.astro";
 import Footer from "@/layouts/Footer.astro";
 import AnalyticsBanner from "@/components/analytics/AnalyticsBanner";
-import { Toaster } from "sileo";
-import { ClientRouter } from "astro:transitions";
+import Meta from "@/components/analytics/Meta.astro";
 
 // Propiedades
 interface Props {
   title?: string;
-  description?: string;
 }
 
-const { title, description } = Astro.props;
-const finalTitle = title ? `${title} | ${config.appName}` : config.appName;
-const finalDescription = description || config.appDescription;
-const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+const { title } = Astro.props;
+const finalTitle = title || config.appName;
+
+// Language from cookie for dynamic lang attribute
+const lang = (Astro.cookies.get("lang")?.value as "es" | "en") || "es";
+const htmlLang = lang === "es" ? "es" : "en";
+
+// Theme from cookie: SSR applies the correct class on first byte → zero FOUC
+const cookieTheme = Astro.cookies.get("theme")?.value || "system";
+// No aplicamos la clase aquí si es "system" porque el servidor no sabe el OS
+const htmlThemeClass = cookieTheme === "dark" ? "dark" : "";
 ---
 
 <!doctype html>
-<html lang={config.language.split("-")[0]}>
+<html lang={htmlLang} class={htmlThemeClass}>
   <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <Meta title={finalTitle} />
 
-    {/* Prevent FOUC: 1) set .dark class, 2) define CSS vars — both BEFORE external stylesheet loads */}
-    <script is:inline>
-      (function() {
-        var t = localStorage.getItem('theme') || 'system';
-        var d = t === 'dark' || (t === 'system' && matchMedia('(prefers-color-scheme: dark)').matches);
-        document.documentElement.classList.toggle('dark', d);
-        document.documentElement.setAttribute('data-theme', d ? 'dark' : 'light');
-      })();
+    <script is:inline define:vars={{ cookieTheme }}>
+      const root = document.documentElement;
+      const theme = cookieTheme === "system" ? (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light") : cookieTheme;
+
+      if (theme === "dark") root.classList.add("dark");
+      else root.classList.remove("dark");
     </script>
-    <style is:inline>
-      :root {
-        --color-background: #ffffff;
-        --color-foreground: #0f172a;
-        --btn-primary: #661AE6;
-        --btn-secondary: #f1f5f9;
-        --btn-text-primary: #ffffff;
-        --btn-text-secondary: #64748b;
-        --shadow-soft: 0 1px 3px rgba(0,0,0,0.1);
-      }
-      :root.dark {
-        --color-background: #0f172a;
-        --color-foreground: #ffffff;
-        --btn-secondary: #1e293b;
-        --btn-text-secondary: #94a3b8;
-        --shadow-soft: 0 1px 3px rgba(0,0,0,0.3);
-      }
-      html { background-color: var(--color-background); color: var(--color-foreground); }
-    </style>
-
-    <title>{finalTitle}</title>
-
-    <meta name="description" content={finalDescription} />
-    <meta name="theme-color" content={config.themeColor} />
-    <meta name="generator" content={Astro.generator} />
-    <link rel="canonical" href={canonicalURL} />
-
-    {/* Open Graph */}
-    <meta property="og:type" content="website" />
-    <meta property="og:url" content={canonicalURL} />
-    <meta property="og:site_name" content={config.appName} />
-    <meta property="og:title" content={finalTitle} />
-    <meta property="og:description" content={finalDescription} />
-    <meta property="og:image" content={config.siteUrl + config.images.ogDefault} />
-
-    {/* Twitter Card */}
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content={finalTitle} />
-    <meta name="twitter:description" content={finalDescription} />
-    <meta name="twitter:image" content={config.siteUrl + config.images.ogDefault} />
   </head>
 
-  <body class="antialiased bg-background text-foreground font-sans flex flex-col min-h-screen">
-    {/* Componente de notificaciones globales */}
-    <Toaster position="top-right" client:load />
-
-    {/* Header en la parte superior */}
+  <body
+    class="antialiased bg-[var(--body-background)] text-[var(--foreground-color)] flex flex-col min-h-screen selection:bg-[var(--highlight-one)] selection:text-black"
+  >
     <Header />
+    <Toaster client:only="react" position="top-center" />
 
-    <main class="flex-grow">
-      <slot />
+    <main class="flex-grow w-full px-6 lg:px-12 py-12 md:py-20">
+      <div class="grid grid-cols-1 md:grid-cols-12 gap-12 lg:gap-20">
+        <VerticalMenu />
+        <slot />
+      </div>
     </main>
 
-    {/* Footer al final */}
     <Footer />
-    <AnalyticsBanner client:idle />
+    <AnalyticsBanner client:load />
   </body>
 </html>

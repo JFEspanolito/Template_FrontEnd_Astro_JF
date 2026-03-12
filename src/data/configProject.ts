@@ -1,12 +1,17 @@
-// src/data/configProject.ts
-const configProject = {
+// ../data/configProject.ts
+export const configProject = {
   // ======================================================
   // 🧩 PROYECTO (metadata / web)
   // ======================================================
-  appName: "<Astro Astro Place holder>",
-  appDescription: "<Astro Place holder>",
-  domainName: "website.placeholder.com",
-  siteUrl: import.meta.env.PUBLIC_SITE_URL || "http://localhost:4321",
+  appName: "<Astro Placeholder for AppName>",
+  tabname: "<Astro Placeholder for TabName>",
+  appDescription: "<Astro Placeholder for Description>",
+  ogTitle: "<Astro Placeholder for preview name>",
+  ogDescription: "<Astro Placeholder for preview description>",
+  domainName: "placeholder.com",
+  siteUrl: "https://placeholder.com",
+  copyright_es: `© ${new Date().getFullYear()} — Todos los derechos reservados.`,
+  copyright_en: `© ${new Date().getFullYear()} — All rights reserved.`,
 
   // ======================================================
   // 🌐 METADATOS / SEO
@@ -18,21 +23,22 @@ const configProject = {
     background: "#000000",
     foreground: "#ffffff",
   },
-  keywords: ["placeholder", "example"],
-  author: "<Astro Place holder>",
-  twitter: "@<Astro Place holder>",
+  keywords: ["placeholder"],
+  author: "Tierra Hueca Studio",
+  twitter: "@placeholder",
 
   // Rutas hacia imágenes base
+  // se recomienda qué las imagenes sean de 1200x630px para OG y 1024x512px para Twitter
   images: {
-    ogDefault: "/images/placeholder.webp",
-    twitterCard: "/images/placeholder.webp",
-    favicon: "/favicon.ico",
-    icon16: "/favicon.ico",
-    icon32: "/favicon.ico",
-    icon192: "/images/placeholder-192.png",
-    icon512: "/images/placeholder-512.png",
-    appleTouch: "/images/placeholder-apple.png",
-    safariMask: "/images/placeholder-mask.png",
+    ogDefault: "/PageCover/cover.webp",
+    twitterCard: "/PageCover/cover.webp",
+    favicon: "/PageCover/favicon.ico",
+    icon16: "/PageCover/favicon.ico",
+    icon32: "/PageCover/favicon.ico",
+    icon192: "/PageCover/cover.webp",
+    icon512: "/PageCover/cover.webp",
+    appleTouch: "/PageCover/cover.webp",
+    safariMask: "/PageCover/cover.webp",
   },
 
   // ======================================================
@@ -51,16 +57,6 @@ const configProject = {
   },
 
   // ======================================================
-  // 🔗 REDES SOCIALES (para JSON-LD)
-  // ======================================================
-  socials: {
-    github: "https://github.com/placeholder",
-    linkedin: "https://linkedin.com/placeholder",
-    twitter: "https://twitter.com/placeholder",
-    instagram: "https://instagram.com/placeholder",
-  },
-
-  // ======================================================
   // 📣 MARKETING (placeholders)
   // ======================================================
   marketing: {
@@ -71,6 +67,30 @@ const configProject = {
       items: [],
     },
   },
-};
 
-export default configProject;
+  // ======================================================
+  // 🧭 NAVEGACION (labels y rutas i18n)
+  // ======================================================
+  navigation: {
+    ES: {
+      home: { label: "Inicio", href: "/" },
+      services: {
+        label: "Servicios",
+        childrens: [
+          { label: "Submenu 1", href: "/CV" },
+          { label: "Submenu 2", href: "/404" },
+        ],
+      },
+    },
+    EN: {
+      home: { label: "Home", href: "/" },
+      services: {
+        label: "Services",
+        childrens: [
+          { label: "Submenu 1", href: "/CV" },
+          { label: "Submenu 2", href: "/404" },
+        ],
+      },
+    },
+  },
+};

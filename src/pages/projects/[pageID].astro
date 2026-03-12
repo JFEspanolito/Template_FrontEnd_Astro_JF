@@ -1,0 +1,338 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import { proyectos } from "@/data/Proyectos";
+import { configProject } from "@/data/configProject";
+import { Image } from "astro:assets";
+
+const { pageID } = Astro.params;
+
+import { useTranslations } from "@/i18n/ui";
+const lang = (Astro.cookies.get("lang")?.value as "es" | "en") || "es";
+const t = useTranslations(lang);
+
+const proyecto = proyectos.find((p) => p.pageID === pageID);
+const projectShow = lang === "es" ? proyecto?.ES : proyecto?.EN;
+
+if (!proyecto) {
+  return Astro.redirect("/");
+}
+
+// Load all project images dynamically
+const allImages = import.meta.glob<{ default: ImageMetadata }>("/src/assets/**/*.{jpeg,jpg,png,gif,webp}", { eager: true });
+
+// Filter images that belong to this project's folder
+const imagenesProyecto = Object.entries(allImages)
+  .filter(([path]) => path.startsWith(proyecto.imgfolder))
+  .sort(([a], [b]) => a.localeCompare(b))
+  .map(([, img]) => img.default);
+---
+
+<Layout title={`${configProject.appName} - ${proyecto.nombre}`}>
+  <section id="Proyectos" class="md:col-span-8 lg:col-span-9 animate-fade-in md:mr-20">
+    {/* Header Values (Name, description, etc) */}
+    <div class="max-w-4xl mb-16">
+      <h1 class="text-5xl md:text-6xl font-display font-bold text-[var(--foreground-color)] mb-8 leading-tight uppercase tracking-tight">
+        {proyecto.nombre}
+      </h1>
+      <div class="w-20 h-1 bg-[var(--highlight-one)] mb-8"></div>
+
+      <div class="prose prose-invert max-w-none text-sm leading-relaxed text-[var(--foreground-muted)]">
+        <p class="mb-4 whitespace-pre-line">
+          {projectShow?.descripcion}
+        </p>
+      </div>
+
+      <div class="mt-8 flex flex-wrap gap-4 text-[10px] tracking-widest uppercase font-bold">
+        {
+          projectShow?.props.map((prop) => (
+            <span class="border border-[var(--border-dim-one)] px-4 py-1.5 rounded-full text-[var(--foreground-muted)] hover:border-[var(--highlight-one)] hover:text-[var(--foreground-color)] transition-colors duration-300">
+              {prop}
+            </span>
+          ))
+        }
+      </div>
+    </div>
+    {/* Back Buttons */}
+    <div class="mb-10 pb-10 border-b border-[var(--border-dim-one)] flex justify-between items-center">
+      <a
+        href="/"
+        class="group flex items-center gap-3 text-xs font-bold tracking-widest uppercase text-[var(--foreground-muted)] hover:text-[var(--foreground-highlight-one)] transition-colors"
+      >
+        <span class="material-symbols-outlined text-sm group-hover:-translate-x-1 transition-transform" style="transform: rotate(180deg);"
+          >&#10148;</span
+        >
+        {t("project.Back")}
+      </a>
+      {
+        proyecto.url && (
+          <a
+            href={proyecto.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="text-xs font-bold tracking-widest uppercase text-[var(--foreground-highlight-one)] hover:text-[var(--foreground-color)] transition-colors"
+          >
+            {t("project.Visit")}
+          </a>
+        )
+      }
+    </div>
+    {/* Image Gallery */}
+    <div id="masonry-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-0" style="grid-auto-rows: 4px;">
+      {
+        imagenesProyecto.map((img, index) => (
+          <div class="masonry-item relative group overflow-hidden rounded-lg">
+            <button
+              type="button"
+              class="w-full overflow-hidden border border-white/10 bg-black/10 cursor-zoom-in"
+              data-cert-preview
+              data-preview-src={img.src}
+              data-preview-alt={proyecto.nombre}
+              data-index={index}
+              aria-label="ampliar"
+            >
+              <Image
+                src={img}
+                alt={`${proyecto.nombre}`}
+                loading={index < 4 ? "eager" : "lazy"}
+                class="w-full h-auto block transition-transform duration-700 group-hover:scale-105 filter grayscale-[20%] group-hover:grayscale-0"
+              />
+            </button>
+          </div>
+        ))
+      }
+    </div>
+    {/* Back Buttons */}
+    <div class="mt-20 pt-10 border-t border-[var(--border-dim-one)] flex justify-between items-center">
+      <a
+        href="/"
+        class="group flex items-center gap-3 text-xs font-bold tracking-widest uppercase text-[var(--foreground-muted)] hover:text-[var(--foreground-highlight-one)] transition-colors"
+      >
+        <span class="material-symbols-outlined text-sm group-hover:-translate-x-1 transition-transform" style="transform: rotate(180deg);"
+          >&#10148;</span
+        >
+        {t("project.Back")}
+      </a>
+      {
+        proyecto.url && (
+          <a
+            href={proyecto.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="text-xs font-bold tracking-widest uppercase text-[var(--foreground-highlight-one)] hover:text-[var(--foreground-color)] transition-colors"
+          >
+            {t("project.Visit")}
+          </a>
+        )
+      }
+    </div>
+  </section>
+
+  <!-- Lightbox -->
+  <div
+    id="cert-lightbox"
+    class="fixed inset-0 z-[120] hidden items-center justify-center bg-black/95 p-4 md:p-8 backdrop-blur-sm"
+    role="dialog"
+    aria-modal="true"
+    aria-label="Vista ampliada"
+  >
+    <!-- Navigation Buttons -->
+    <button
+      id="cert-lightbox-prev"
+      class="absolute left-4 md:left-10 z-[140] text-[var(--foreground-color)] hover:text-[var(--foreground-highlight-one)] transition-colors p-4"
+      aria-label="Anterior"
+    >
+      <span class="text-4xl">&#8249;</span>
+    </button>
+
+    <button
+      id="cert-lightbox-next"
+      class="absolute right-4 md:right-10 z-[140] text-[var(--foreground-color)] hover:text-[var(--foreground-highlight-one)] transition-colors p-4"
+      aria-label="Siguiente"
+    >
+      <span class="text-4xl">&#8250;</span>
+    </button>
+
+    <button
+      id="cert-lightbox-close"
+      type="button"
+      class="absolute top-4 right-4 md:top-6 md:right-6 h-12 w-12 flex items-center justify-center rounded-full border border-white/20 text-[var(--foreground-color)] hover:border-[var(--highlight-one)] hover:text-[var(--foreground-highlight-one)] transition-all bg-black/20 backdrop-blur-md z-[150]"
+      aria-label="Cerrar"
+    >
+      <span class="text-2xl">&#10005;</span>
+    </button>
+
+    <img
+      id="cert-lightbox-image"
+      src=""
+      alt=""
+      class="max-h-[90vh] max-w-[95vw] w-auto h-auto rounded-lg border border-white/10 shadow-2xl transition-opacity duration-200"
+    />
+  </div>
+</Layout>
+
+<script is:inline define:vars={{ imagenesProyecto, proyectoNombre: proyecto.nombre }}>
+  const lightbox = document.getElementById("cert-lightbox");
+  const lightboxImg = document.getElementById("cert-lightbox-image");
+  const closeBtn = document.getElementById("cert-lightbox-close");
+  const prevBtn = document.getElementById("cert-lightbox-prev");
+  const nextBtn = document.getElementById("cert-lightbox-next");
+  const previewButtons = document.querySelectorAll("[data-cert-preview]");
+
+  let currentIndex = 0;
+  let isTransitioning = false;
+
+  function preloadImages(index) {
+    if (!imagenesProyecto || imagenesProyecto.length <= 1) return;
+
+    const nextIdx = (index + 1) % imagenesProyecto.length;
+    const prevIdx = (index - 1 + imagenesProyecto.length) % imagenesProyecto.length;
+
+    [nextIdx, prevIdx].forEach((idx) => {
+      const img = new Image();
+      img.src = imagenesProyecto[idx].src;
+    });
+  }
+
+  function updateLightbox(index) {
+    if (!lightboxImg || !imagenesProyecto[index] || isTransitioning) return;
+
+    isTransitioning = true;
+    currentIndex = index;
+
+    lightboxImg.style.opacity = "0";
+
+    setTimeout(() => {
+      const nextSrc = imagenesProyecto[index].src;
+      lightboxImg.src = nextSrc;
+      lightboxImg.alt = `${proyectoNombre} - Image ${index + 1}`;
+
+      const finalizeUpdate = () => {
+        lightboxImg.style.opacity = "1";
+        isTransitioning = false;
+        preloadImages(index);
+      };
+
+      if (lightboxImg.complete) {
+        finalizeUpdate();
+      } else {
+        lightboxImg.onload = finalizeUpdate;
+        lightboxImg.onerror = () => {
+          isTransitioning = false;
+        };
+      }
+    }, 200);
+  }
+
+  function openLightbox(index) {
+    if (!lightbox) return;
+
+    currentIndex = index;
+    lightboxImg.src = imagenesProyecto[index].src;
+    lightboxImg.alt = `${proyectoNombre} - Image ${index + 1}`;
+    lightboxImg.style.opacity = "1";
+
+    lightbox.classList.remove("hidden");
+    lightbox.classList.add("flex");
+    document.body.style.overflow = "hidden";
+
+    preloadImages(index);
+  }
+
+  function closeLightbox() {
+    if (!lightbox) return;
+    lightbox.classList.add("hidden");
+    lightbox.classList.remove("flex");
+    document.body.style.overflow = "";
+    isTransitioning = false;
+  }
+
+  function nextImage() {
+    const nextIdx = (currentIndex + 1) % imagenesProyecto.length;
+    updateLightbox(nextIdx);
+  }
+
+  function prevImage() {
+    const prevIdx = (currentIndex - 1 + imagenesProyecto.length) % imagenesProyecto.length;
+    updateLightbox(prevIdx);
+  }
+
+  previewButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      const index = parseInt(button.getAttribute("data-index") || "0");
+      openLightbox(index);
+    });
+  });
+
+  closeBtn?.addEventListener("click", (e) => {
+    e.stopPropagation();
+    closeLightbox();
+  });
+
+  nextBtn?.addEventListener("click", (e) => {
+    e.stopPropagation();
+    nextImage();
+  });
+
+  prevBtn?.addEventListener("click", (e) => {
+    e.stopPropagation();
+    prevImage();
+  });
+
+  lightbox?.addEventListener("click", (event) => {
+    if (event.target === lightbox) closeLightbox();
+  });
+
+  document.addEventListener("keydown", (event) => {
+    if (lightbox?.classList.contains("hidden")) return;
+
+    if (event.key === "Escape") closeLightbox();
+    if (event.key === "ArrowRight") nextImage();
+    if (event.key === "ArrowLeft") prevImage();
+  });
+</script>
+
+<script is:inline>
+  function layoutMasonry() {
+    const grid = document.getElementById("masonry-grid");
+    if (!grid) return;
+
+    const ROW = 4;
+    const gridWidth = grid.clientWidth;
+    const colCount = getComputedStyle(grid)
+      .gridTemplateColumns.split(" ")
+      .filter((s) => s.trim() !== "").length;
+    const colWidth = colCount > 0 ? gridWidth / colCount : gridWidth;
+
+    grid.querySelectorAll(".masonry-item").forEach((item) => {
+      const img = item.querySelector("img");
+      if (!img) return;
+
+      const natW = parseInt(img.getAttribute("width")) || img.naturalWidth || 1;
+      const natH = parseInt(img.getAttribute("height")) || img.naturalHeight || 1;
+
+      const displayedH = (colWidth * natH) / natW;
+      item.style.gridRowEnd = `span ${Math.max(Math.ceil(displayedH / ROW), 1)}`;
+    });
+  }
+
+  layoutMasonry();
+  window.addEventListener("resize", layoutMasonry);
+  window.addEventListener("load", layoutMasonry);
+</script>
+
+<style>
+  .animate-fade-in {
+    animation: fadeIn 0.8s ease-out forwards;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+</style>

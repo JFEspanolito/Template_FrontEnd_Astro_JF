@@ -1,0 +1,168 @@
+---
+import { Image } from "astro:assets";
+import bbnnLogo from "../assets/profile.webp";
+import { profile } from "@/data/Profile";
+import { configProject as config} from "@/data/configProject";
+
+type NavLink = {
+  label: string;
+  href: string;
+};
+
+type NavGroup = {
+  label: string;
+  href?: string;
+  children?: NavLink[];
+  childrens?: NavLink[];
+  submenu?: NavLink[];
+};
+
+type NavItem = NavLink | NavGroup;
+
+const pathname = new URL(Astro.request.url).pathname;
+const currentPath = pathname.slice(1);
+
+const normalizePath = (href: string) => {
+  if (!href || href === "/" || href.startsWith("#")) return "";
+
+  return href.replace(/^\/+/, "").split("#")[0];
+};
+
+const isActive = (href: string) => {
+  const normalizedPath = normalizePath(href);
+
+  if (normalizedPath === "" && currentPath === "") return true;
+  if (normalizedPath !== "" && currentPath.startsWith(normalizedPath)) return true;
+  return false;
+};
+
+const getChildren = (item: NavItem) => {
+  if ("childrens" in item && Array.isArray(item.childrens)) return item.childrens;
+  if ("children" in item && Array.isArray(item.children)) return item.children;
+  if ("submenu" in item && Array.isArray(item.submenu)) return item.submenu;
+  return [];
+};
+
+const hasChildren = (item: NavItem) => getChildren(item).length > 0 && !("href" in item && item.href);
+
+const isItemActive = (item: NavItem) => {
+  if (hasChildren(item)) {
+    return getChildren(item).some((child) => isActive(child.href));
+  }
+
+  return "href" in item && typeof item.href === "string" ? isActive(item.href) : false;
+};
+
+const activeClass = "text-[var(--foreground-highlight-one)] border-l-2 border-[var(--highlight-one)]";
+const inactiveClass = "text-[var(--foreground-muted)] hover:text-[var(--foreground-color)] border-l-2 border-transparent hover:border-white/20";
+const childActiveClass = "text-[var(--foreground-highlight-two)] border-l-2 border-[var(--highlight-two)]";
+const childInactiveClass = "text-[var(--foreground-muted)] hover:text-[var(--foreground-highlight-two)] border-l-2 border-transparent hover:border-[var(--highlight-two)]/40";
+
+const lang = (Astro.cookies.get("lang")?.value as "es" | "en") || "es";
+
+const profileShow = lang === "es" ? profile.ES : profile.EN;
+const navigation = Object.values(lang === "es" ? config.navigation.ES : config.navigation.EN) as NavItem[];
+---
+
+<aside class="md:col-span-4 lg:col-span-3 space-y-10 md:sticky md:top-32 self-start md:ml-0">
+  <div class="flex flex-col items-start space-y-6">
+    <div
+      class="relative w-24 h-24 grayscale hover:grayscale-0 transition-all duration-500 rounded-full overflow-hidden border-2 border-[var(--border-dim-one)] hover:border-[var(--highlight-one)] bg-[var(--card-background)]"
+    >
+      <Image src={bbnnLogo} alt="Logo" class="object-contain" />
+    </div>
+    <div class="space-y-2">
+      <h2 class="font-display font-bold text-3xl editorial-title text-[var(--foreground-color)]">
+        {profile.name}
+      </h2>
+
+      {
+        profileShow.description.map((line) => (
+          <p class="text-[14px] text-[var(--foreground-muted)] leading-relaxed font-normal max-w-xs">{line}</p>
+        ))
+      }
+
+      <p class="text-[14px] text-[var(--foreground-muted)] leading-relaxed font-normal max-w-xs">{profileShow.headline}</p>
+    </div>
+    <div class="w-12 h-1 bg-[var(--highlight-one)]"></div>
+  </div>
+  <nav class="hidden md:flex flex-col space-y-2">
+    {
+      navigation.map((item) => {
+        const itemActiveClass = isItemActive(item) ? activeClass : inactiveClass;
+
+        if (hasChildren(item)) {
+          const children = getChildren(item);
+          const isOpen = isItemActive(item);
+
+          return (
+            <details class="nav-dropdown group" open={isOpen} data-nav-dropdown data-pinned={isOpen ? "true" : "false"}>
+              <summary
+                class={`group flex items-center gap-3 py-2 text-sm font-bold nav-link pl-4 transition-all cursor-pointer list-none [&::-webkit-details-marker]:hidden ${itemActiveClass}`}
+                data-nav-trigger
+              >
+                <span>{item.label}</span>
+                <span class="nav-caret ml-auto text-xs leading-none transition-transform duration-300">v</span>
+              </summary>
+
+              <div class="nav-submenu mt-2 ml-4 flex flex-col space-y-1 border-l border-white/10 pl-4">
+                {
+                  children.map((child) => (
+                    <a
+                      class={`group flex items-center gap-3 py-2 text-xs font-bold nav-link transition-all ${isActive(child.href) ? childActiveClass : childInactiveClass}`}
+                      href={child.href}
+                    >
+                      {child.label}
+                    </a>
+                  ))
+                }
+              </div>
+            </details>
+          );
+        }
+
+        return (
+          <a
+            class={`group flex items-center gap-3 py-2 text-sm font-bold nav-link pl-4 transition-all ${itemActiveClass}`}
+            href={item.href}
+          >
+            {item.label}
+          </a>
+        );
+      })
+    }
+  </nav>
+</aside>
+
+<script is:inline>
+  const navDropdowns = document.querySelectorAll("[data-nav-dropdown]");
+
+  navDropdowns.forEach((dropdown) => {
+    if (!(dropdown instanceof HTMLDetailsElement)) return;
+
+    const trigger = dropdown.querySelector("[data-nav-trigger]");
+    if (!(trigger instanceof HTMLElement)) return;
+
+    const setOpen = (open) => {
+      dropdown.open = open;
+    };
+
+    dropdown.addEventListener("mouseenter", () => {
+      setOpen(true);
+    });
+
+    dropdown.addEventListener("mouseleave", () => {
+      if (dropdown.dataset.pinned !== "true") {
+        setOpen(false);
+      }
+    });
+
+    trigger.addEventListener("click", (event) => {
+      event.preventDefault();
+
+      const nextPinned = dropdown.dataset.pinned !== "true";
+      dropdown.dataset.pinned = nextPinned ? "true" : "false";
+      setOpen(nextPinned);
+    });
+  });
+</script>
