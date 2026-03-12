@@ -1,117 +1,132 @@
+"use client";
+
 import { useState, useEffect, useCallback } from "react";
 import { injectSpeedInsights } from "@vercel/speed-insights";
 import Modal from "@/components/ui/Modal";
 
+// --- Tipado Stark (Adiós al 'any') ---
 declare global {
   interface Window {
-    gtag?: (...args: any[]) => void;
-    clarity?: (...args: any[]) => void;
-    dataLayer?: any[];
+    gtag?: (...args: unknown[]) => void;
+    clarity?: (...args: unknown[]) => void;
+    dataLayer?: unknown[];
   }
 }
 
 const GA_ID = import.meta.env.PUBLIC_GA_ID ?? "";
 const CLARITY_ID = import.meta.env.PUBLIC_CLARITY_ID ?? "";
+const CONSENT_KEY = "eb_consent";
 
-function getConsent(): string {
+// Helpers de persistencia
+const getConsent = (): string => {
   if (typeof document === "undefined") return "";
-  const m = document.cookie.match(/(?:^|; )eb_consent=([^;]*)/);
+  const m = document.cookie.match(new RegExp(`(?:^|; )${CONSENT_KEY}=([^;]*)`));
   return m ? decodeURIComponent(m[1]) : "";
-}
+};
 
-function writeConsentCookie(val: string) {
+const setConsent = (val: "accepted" | "denied") => {
   if (typeof document === "undefined") return;
-  const d = new Date();
-  d.setFullYear(d.getFullYear() + 1);
-  document.cookie = `eb_consent=${encodeURIComponent(val)}; expires=${d.toUTCString()}; path=/; samesite=lax`;
-}
+  const expiration = new Date();
+  expiration.setFullYear(expiration.getFullYear() + 1);
+  document.cookie = `${CONSENT_KEY}=${val}; expires=${expiration.toUTCString()}; path=/; samesite=lax`;
+};
 
 export default function AnalyticsBanner() {
   const [consent, setConsentState] = useState<string>("");
   const [mounted, setMounted] = useState(false);
 
   const loadScripts = useCallback(() => {
-    if (!GA_ID && !CLARITY_ID) return;
+    if (typeof window === "undefined") return;
 
-    // Google Analytics
-    if (GA_ID) {
-      const gaScript = document.createElement("script");
-      gaScript.src = `https://www.googletagmanager.com/gtag/js?id=${GA_ID}`;
-      gaScript.async = true;
-      document.head.appendChild(gaScript);
+    // Google Analytics Protocol
+    if (GA_ID && !window.gtag) {
+      const script = document.createElement("script");
+      script.src = `https://www.googletagmanager.com/gtag/js?id=${GA_ID}`;
+      script.async = true;
+      document.head.appendChild(script);
 
       window.dataLayer = window.dataLayer || [];
-      window.gtag = function() { window.dataLayer?.push(arguments); };
+      window.gtag = (...args: any[]) => { (window.dataLayer as any[]).push(args); };
       window.gtag("js", new Date());
       window.gtag("config", GA_ID);
     }
 
-    // Clarity
-    if (CLARITY_ID) {
+    // Microsoft Clarity Protocol
+    if (CLARITY_ID && !window.clarity) {
       (function(c: any, l: any, a: any, r: any, i: any){
-        let t: any; let y: any;
         c[a] = c[a] || function(){ (c[a].q = c[a].q || []).push(arguments); };
-        t = l.createElement(r); t.async = true; t.src = "https://www.clarity.ms/tag/" + i;
-        y = l.getElementsByTagName(r)[0];
-        if (y && y.parentNode) y.parentNode.insertBefore(t, y);
+        const t = l.createElement(r); t.async = true; t.src = "https://www.clarity.ms/tag/" + i;
+        const y = l.getElementsByTagName(r)[0];
+        if (y?.parentNode) y.parentNode.insertBefore(t, y);
       })(window, document, "clarity", "script", CLARITY_ID);
     }
   }, []);
 
   useEffect(() => {
     setMounted(true);
-    const savedConsent = getConsent();
-    setConsentState(savedConsent);
+    const saved = getConsent();
+    setConsentState(saved);
 
-    // Speed Insights
-    if (typeof injectSpeedInsights === "function") {
-      injectSpeedInsights();
-    }
+    // Vercel Speed Insights (Siempre se inyecta, es anónimo por defecto)
+    injectSpeedInsights();
 
-    if (savedConsent === "accepted") {
-      loadScripts();
-    }
+    if (saved === "accepted") loadScripts();
   }, [loadScripts]);
 
-  const accept = () => {
-    writeConsentCookie("accepted");
+  const handleAccept = () => {
+    setConsent("accepted");
     setConsentState("accepted");
     loadScripts();
   };
 
-  const decline = () => {
-    writeConsentCookie("denied");
+  const handleDecline = () => {
+    setConsent("denied");
     setConsentState("denied");
   };
 
-  if (!mounted) return null;
+  if (!mounted || consent !== "") return null;
 
   return (
-    <Modal
-      isModalOpen={consent === ""}
-      setIsModalOpen={() => {}}
-      title="Configuración de Cookies"
-      preventClose={true}
-    >
-      <div className="space-y-4">
-        <p className="text-sm text-gray-300">
-          Utilizamos cookies para mejorar tu experiencia y analizar el tráfico mediante Google Analytics y Microsoft Clarity.
+    /* ATENCIÓN: Aquí asumo que tu Modal.tsx ha sido ajustado para 
+      funcionar como wrapper Y como componente de store. 
+    */
+    <div className="fixed inset-0 z-[100] flex items-end justify-center p-6 pointer-events-none">
+      <div className="
+        pointer-events-auto w-full max-w-lg 
+        bg-[var(--card-background)] border border-[var(--border-dim-one)] 
+        p-6 rounded-2xl shadow-[var(--shadow-soft)] animate-in fade-in slide-in-from-bottom-4
+      ">
+        <h3 className="text-lg font-display font-bold text-[var(--foreground-highlight-one)] mb-2">
+          Configuración de Privacidad
+        </h3>
+        <p className="text-sm font-body text-[var(--foreground-color)] mb-6 leading-relaxed">
+          Para optimizar este hangar, utilizamos Google Analytics y Microsoft Clarity. 
+          Tú decides si activamos los sensores de telemetría o mantenemos el sigilo total.
         </p>
-        <div className="flex justify-end gap-3">
+        
+        <div className="flex flex-col sm:flex-row gap-3 justify-end">
           <button
-            onClick={decline}
-            className="px-4 py-2 text-sm font-medium text-[var(--foreground-color)] bg-white/10 rounded-lg hover:bg-white/20 transition-colors"
+            onClick={handleDecline}
+            className="
+              px-4 py-2 text-sm font-bold rounded-lg transition-all
+              bg-[var(--btn-secondary)] text-[var(--btn-text-secondary)]
+              hover:opacity-80
+            "
           >
             Solo esenciales
           </button>
           <button
-            onClick={accept}
-            className="px-4 py-2 text-sm font-bold text-[var(--foreground-color)] rounded-lg bg-primary hover:opacity-90 transition-opacity"
+            onClick={handleAccept}
+            className="
+              px-4 py-2 text-sm font-bold rounded-lg transition-all
+              bg-[var(--btn-primary)] text-[var(--btn-text-primary)]
+              hover:shadow-soft active:scale-95
+            "
           >
             Aceptar todas
           </button>
         </div>
       </div>
-    </Modal>
+    </div>
   );
 }

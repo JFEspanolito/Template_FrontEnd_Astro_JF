@@ -1,81 +1,56 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useStore } from "@nanostores/react";
+import { $theme, type Theme } from "@/store/themeStore";
 import { Sun, Moon, Monitor } from "lucide-react";
+import { useEffect } from "react";
 
 export default function ThemeToggle() {
-  const [theme, setTheme] = useState(() => {
-    if (typeof localStorage === "undefined") return "system";
-    return localStorage.getItem("theme") || "system";
-  });
-  const [resolvedTheme, setResolvedTheme] = useState("light");
+  const theme = useStore($theme);
 
   useEffect(() => {
-    let systemTheme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
-    setResolvedTheme(theme === "system" ? systemTheme : theme);
-
+    const root = document.documentElement;
     const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
-    const handleChange = (e: MediaQueryListEvent) => {
-      systemTheme = e.matches ? "dark" : "light";
-      if (theme === "system") {
-        setResolvedTheme(systemTheme);
-      }
+
+    const applyTheme = (currentTheme: Theme) => {
+      const resolved = currentTheme === "system" 
+        ? (mediaQuery.matches ? "dark" : "light") 
+        : currentTheme;
+
+      if (resolved === "dark") root.classList.add("dark");
+      else root.classList.remove("dark");
+
+      // Sincronizar Cookie para el próximo SSR
+      const oneYear = 365 * 24 * 60 * 60;
+      document.cookie = `theme=${currentTheme}; path=/; max-age=${oneYear}; SameSite=Lax`;
+      localStorage.setItem("theme", currentTheme);
     };
 
-    mediaQuery.addEventListener("change", handleChange);
-    return () => mediaQuery.removeEventListener("change", handleChange);
+    applyTheme(theme);
+
+    const handleSystemChange = () => { if (theme === "system") applyTheme("system"); };
+    mediaQuery.addEventListener("change", handleSystemChange);
+    return () => mediaQuery.removeEventListener("change", handleSystemChange);
   }, [theme]);
-
-  useEffect(() => {
-    if (resolvedTheme === 'dark') {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-    // Sync cookie so SSR can apply the correct class on next navigation (prevents FOUC)
-    const oneYear = 365 * 24 * 60 * 60;
-    document.cookie = `theme=${resolvedTheme}; path=/; max-age=${oneYear}; SameSite=Lax`;
-  }, [resolvedTheme]);
-
-
-  const handleThemeChange = (newTheme: string) => {
-    localStorage.setItem("theme", newTheme);
-    setTheme(newTheme);
-  };
 
   const themes = [
     { value: "light", icon: Sun, label: "Claro" },
     { value: "dark", icon: Moon, label: "Oscuro" },
     { value: "system", icon: Monitor, label: "Sistema" },
-  ];
+  ] as const;
 
   return (
-    <div className="flex gap-2 items-center p-1 rounded-lg" style={{ backgroundColor: "var(--btn-secondary)" }}>
-      {themes.map(({ value, icon: Icon, label }) => {
-        const isActive = theme === value;
-
-        return (
-          <button
-            key={value}
-            onClick={() => handleThemeChange(value)}
-            aria-label={label}
-            title={label}
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              justifyContent: "center",
-              padding: "0.5rem",
-              borderRadius: "0.375rem",
-              transition: "background-color 0.15s ease, color 0.15s ease",
-              border: "1px solid transparent",
-              backgroundColor: isActive ? "var(--btn-primary)" : "transparent",
-              color: isActive ? "var(--btn-text-primary)" : "var(--btn-text-secondary)",
-              boxShadow: isActive ? "var(--shadow-soft)" : "none",
-            }}
-          >
-            <Icon className="w-4 h-4" />
-          </button>
-        );
-      })}
+    <div className="flex gap-2 p-1 rounded-lg bg-[var(--btn-secondary)]">
+      {themes.map(({ value, icon: Icon, label }) => (
+        <button
+          key={value}
+          onClick={() => $theme.set(value)}
+          className={`p-2 rounded-md transition-all ${
+            theme === value ? "bg-[var(--btn-primary)] shadow-soft text-[var(--btn-text-primary)]" : "text-[var(--btn-text-secondary)]"
+          }`}
+        >
+          <Icon size={16} />
+        </button>
+      ))}
     </div>
   );
 }

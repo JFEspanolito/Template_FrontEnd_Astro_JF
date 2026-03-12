@@ -30,15 +30,15 @@ export const configProject = {
   // Rutas hacia imágenes base
   // se recomienda qué las imagenes sean de 1200x630px para OG y 1024x512px para Twitter
   images: {
-    ogDefault: "public/cover/cover.webp",
-    twitterCard: "public/cover/cover.webp",
-    favicon: "public/cover/favicon.ico",
-    icon16: "public/cover/favicon.ico",
-    icon32: "public/cover/favicon.ico",
-    icon192: "public/cover/cover.webp",
-    icon512: "public/cover/cover.webp",
-    appleTouch: "public/cover/cover.webp",
-    safariMask: "public/cover/cover.webp",
+    ogDefault: "/PageCover/cover.webp",
+    twitterCard: "/PageCover/cover.webp",
+    favicon: "/PageCover/favicon.ico",
+    icon16: "/PageCover/favicon.ico",
+    icon32: "/PageCover/favicon.ico",
+    icon192: "/PageCover/cover.webp",
+    icon512: "/PageCover/cover.webp",
+    appleTouch: "/PageCover/cover.webp",
+    safariMask: "/PageCover/cover.webp",
   },
 
   // ======================================================

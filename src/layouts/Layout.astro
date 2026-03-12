@@ -2,15 +2,16 @@
 // Importando Estilos
 import "@/styles/global.css";
 import { Toaster } from "sileo";
-import VerticalMenu from "@/components/layout/vertical_menu.astro";
+import VerticalMenu from "./VerticalMenu.astro";
 
 // Importando Datos
 import { configProject as config } from "@/data/configProject";
 
 // Importando Componentes
-import Meta from "@/components/analytics/Meta.astro";
 import Header from "@/layouts/Header.astro";
 import Footer from "@/layouts/Footer.astro";
+import AnalyticsBanner from "@/components/analytics/AnalyticsBanner";
+import Meta from "@/components/analytics/Meta.astro";
 
 // Propiedades
 interface Props {
@@ -25,21 +26,29 @@ const lang = (Astro.cookies.get("lang")?.value as "es" | "en") || "es";
 const htmlLang = lang === "es" ? "es" : "en";
 
 // Theme from cookie: SSR applies the correct class on first byte → zero FOUC
-const cookieTheme = Astro.cookies.get("theme")?.value;
-const htmlThemeClass = cookieTheme === "dark" ? "dark" : cookieTheme === "light" ? "" : "";
+const cookieTheme = Astro.cookies.get("theme")?.value || "system";
+// No aplicamos la clase aquí si es "system" porque el servidor no sabe el OS
+const htmlThemeClass = cookieTheme === "dark" ? "dark" : "";
 ---
 
 <!doctype html>
 <html lang={htmlLang} class={htmlThemeClass}>
   <head>
     <Meta title={finalTitle} />
+
+    <script is:inline define:vars={{ cookieTheme }}>
+      const root = document.documentElement;
+      const theme = cookieTheme === "system" ? (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light") : cookieTheme;
+
+      if (theme === "dark") root.classList.add("dark");
+      else root.classList.remove("dark");
+    </script>
   </head>
 
   <body
     class="antialiased bg-[var(--body-background)] text-[var(--foreground-color)] flex flex-col min-h-screen selection:bg-[var(--highlight-one)] selection:text-black"
   >
     <Header />
-
     <Toaster client:only="react" position="top-center" />
 
     <main class="flex-grow w-full px-6 lg:px-12 py-12 md:py-20">
@@ -50,5 +59,6 @@ const htmlThemeClass = cookieTheme === "dark" ? "dark" : cookieTheme === "light"
     </main>
 
     <Footer />
+    <AnalyticsBanner client:load />
   </body>
 </html>
