@@ -25,23 +25,27 @@ const finalTitle = title || config.appName;
 const lang = (Astro.cookies.get("lang")?.value as "es" | "en") || "es";
 const htmlLang = lang === "es" ? "es" : "en";
 
-// Theme from cookie: SSR applies the correct class on first byte → zero FOUC
-const cookieTheme = Astro.cookies.get("theme")?.value || "system";
-// No aplicamos la clase aquí si es "system" porque el servidor no sabe el OS
-const htmlThemeClass = cookieTheme === "dark" ? "dark" : "";
+// Theme from cookie: SSR applies data-theme on first byte → zero FOUC
+// If no cookie or "system", we omit data-theme so CSS @media kicks in
+const cookieTheme = Astro.cookies.get("theme")?.value || "";
+const validThemes = ["default", "dark", "black", "pink", "blue", "yellow"];
+const dataTheme = validThemes.includes(cookieTheme) ? cookieTheme : "";
 ---
 
 <!doctype html>
-<html lang={htmlLang} class={htmlThemeClass}>
+<html lang={htmlLang} data-theme={dataTheme || undefined}>
   <head>
     <Meta title={finalTitle} />
 
-    <script is:inline define:vars={{ cookieTheme }}>
-      const root = document.documentElement;
-      const theme = cookieTheme === "system" ? (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light") : cookieTheme;
-
-      if (theme === "dark") root.classList.add("dark");
-      else root.classList.remove("dark");
+    <script is:inline define:vars={{ dataTheme }}>
+      // If no data-theme from SSR cookie, check localStorage for stored preference
+      if (!dataTheme) {
+        const stored = localStorage.getItem("theme");
+        if (stored && ["default", "dark", "black", "pink", "blue", "yellow"].includes(stored)) {
+          document.documentElement.setAttribute("data-theme", stored);
+        }
+        // Otherwise, no data-theme → CSS @media prefers-color-scheme handles it
+      }
     </script>
   </head>
 

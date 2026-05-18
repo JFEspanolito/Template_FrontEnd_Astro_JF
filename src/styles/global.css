@@ -39,12 +39,13 @@
   --font-body: "Space Grotesk", "sans-serif";
 }
 
-/* Custom CSS Variables: define color values for light/dark themes.
-   :root = light mode | html.dark = dark mode
-   These feed the @theme tokens above. */
+/* Custom CSS Variables: multi-theme system via [data-theme].
+   :root = default (light). @media prefers-color-scheme: dark auto-switches.
+   Each [data-theme="X"] overrides everything explicitly. */
+
 :root {
   /* Background colors */
-  --color-background: #6a6e72;
+  --color-background: #ffffff;
   --bg-card: #f4f4f5;
 
   /* Buttons Background colors */
@@ -71,33 +72,100 @@
   --raw-shadow-soft: 0 1px 3px rgba(0, 0, 0, 0.4);
 }
 
-html.dark {
-  /* Background colors */
-  --color-background: #111111;
-  --bg-card: #18181b;
+/* Auto dark when no explicit theme is set and OS prefers dark */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    --color-background: #252b30;
+    --bg-card: #18181b;
+    --raw-btn-primary: #27272a;
+    --raw-btn-secondary: rgba(255, 255, 255, 0.06);
+    --raw-btn-text-primary: #e2e8f0;
+    --raw-btn-text-secondary: #94a3b8;
+    --color-foreground: #e2e8f0;
+    --text-muted: #94a3b8;
+    --border-dim: rgba(255, 255, 255, 0.08);
+    --raw-shadow-soft: 0 1px 3px rgba(0, 0, 0, 0.6);
+  }
+}
 
-  /* Buttons Background colors */
-  --raw-btn-primary: #27272a;
+/* ---- Explicit Themes ---- */
+
+[data-theme="default"] {
+  --color-background: #ffffff;
+  --bg-card: #f4f4f5;
+  --raw-btn-primary: #ffffff;
+  --raw-btn-secondary: rgba(0, 0, 0, 0.06);
+  --raw-btn-text-primary: #111111;
+  --raw-btn-text-secondary: #1c2c42;
+  --color-foreground: #111111;
+  --text-muted: #010305;
+  --border-dim: rgba(0, 0, 0, 0.1);
+  --raw-shadow-soft: 0 1px 3px rgba(0, 0, 0, 0.4);
+}
+
+[data-theme="dark"] {
+  --color-background: #252b30;
+  --bg-card: #1e2328;
+  --raw-btn-primary: #2a3038;
   --raw-btn-secondary: rgba(255, 255, 255, 0.06);
   --raw-btn-text-primary: #e2e8f0;
   --raw-btn-text-secondary: #94a3b8;
-
-  /* Text Colors */
   --color-foreground: #e2e8f0;
   --text-muted: #94a3b8;
-  --text-highlight-1: #a3e635;
-  --text-highlight-2: #22d3ee;
-
-  /* Borders */
   --border-dim: rgba(255, 255, 255, 0.08);
-  --border-highlight: rgba(163, 230, 53, 0.5);
+  --raw-shadow-soft: 0 1px 3px rgba(0, 0, 0, 0.6);
+}
 
-  /* Highlight */
-  --highlight-1: #a3e635;
-  --highlight-2: #22d3ee;
+[data-theme="black"] {
+  --color-background: #000000;
+  --bg-card: #0a0a0a;
+  --raw-btn-primary: #1a1a1a;
+  --raw-btn-secondary: rgba(255, 255, 255, 0.06);
+  --raw-btn-text-primary: #e2e8f0;
+  --raw-btn-text-secondary: #94a3b8;
+  --color-foreground: #e2e8f0;
+  --text-muted: #71717a;
+  --border-dim: rgba(255, 255, 255, 0.06);
+  --raw-shadow-soft: 0 1px 3px rgba(0, 0, 0, 0.8);
+}
 
-  /* Shadow */
-  --raw-shadow-soft: 0 1px 3px rgba(0, 0, 0, 0.4);
+[data-theme="pink"] {
+  --color-background: #ffabc8;
+  --bg-card: #ffc4d8;
+  --raw-btn-primary: #ff8fb4;
+  --raw-btn-secondary: rgba(0, 0, 0, 0.06);
+  --raw-btn-text-primary: #3d1525;
+  --raw-btn-text-secondary: #6b2040;
+  --color-foreground: #2d1018;
+  --text-muted: #5c2035;
+  --border-dim: rgba(0, 0, 0, 0.1);
+  --raw-shadow-soft: 0 1px 3px rgba(100, 20, 50, 0.2);
+}
+
+[data-theme="blue"] {
+  --color-background: #7ec6ff;
+  --bg-card: #a0d6ff;
+  --raw-btn-primary: #5ab0f0;
+  --raw-btn-secondary: rgba(0, 0, 0, 0.06);
+  --raw-btn-text-primary: #0a2540;
+  --raw-btn-text-secondary: #163a5c;
+  --color-foreground: #0a1e33;
+  --text-muted: #1a3550;
+  --border-dim: rgba(0, 0, 0, 0.1);
+  --raw-shadow-soft: 0 1px 3px rgba(10, 40, 80, 0.2);
+}
+
+[data-theme="yellow"] {
+  --color-background: #ffd65a;
+  --bg-card: #ffe08a;
+  --raw-btn-primary: #ffc72e;
+  --raw-btn-secondary: rgba(0, 0, 0, 0.06);
+  --raw-btn-text-primary: #3d2e00;
+  --raw-btn-text-secondary: #5c4500;
+  --color-foreground: #2d2200;
+  --text-muted: #5c4500;
+  --border-dim: rgba(0, 0, 0, 0.1);
+  --raw-shadow-soft: 0 1px 3px rgba(80, 60, 0, 0.2);
 }
 
 /* ================================================================== */
@@ -205,7 +273,9 @@ body {
     }
 
     &::-webkit-scrollbar-thumb:hover {
-      background-color: var(--highlight-two); /* Feedback visual al pasar el mouse */
+      background-color: var(
+        --highlight-two
+      ); /* Feedback visual al pasar el mouse */
     }
   }
 }

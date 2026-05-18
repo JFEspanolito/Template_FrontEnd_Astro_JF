@@ -6,8 +6,6 @@ export const configProject = {
   appName: "<Astro Placeholder for AppName>",
   tabname: "<Astro Placeholder for TabName>",
   appDescription: "<Astro Placeholder for Description>",
-  ogTitle: "<Astro Placeholder for preview name>",
-  ogDescription: "<Astro Placeholder for preview description>",
   domainName: "placeholder.com",
   siteUrl: "https://placeholder.com",
   copyright_es: `© ${new Date().getFullYear()} — Todos los derechos reservados.`,
@@ -25,7 +23,8 @@ export const configProject = {
   },
   keywords: ["placeholder"],
   author: "Tierra Hueca Studio",
-  twitter: "@placeholder",
+  ogTitle: "<Astro Placeholder for preview name>",
+  ogDescription: "<Astro Placeholder for preview description>",
 
   // Rutas hacia imágenes base
   // se recomienda qué las imagenes sean de 1200x630px para OG y 1024x512px para Twitter
